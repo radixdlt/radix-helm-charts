@@ -1,0 +1,23 @@
+name: Helm
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  update_index:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Update index
+      run: |
+        make package
+        make index
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@0b007fbd1180b8e3a3668b21c6517392fe8f26eb
+      with:
+        commit_message: "Update helm repo index"

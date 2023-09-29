@@ -1,0 +1,43 @@
+apiVersion: v1
+entries:
+  babylon-gateway:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-09-29T13:46:17.814208+02:00"
+    dependencies:
+    - name: gateway-api
+      repository: file://../gateway-api
+      version: 1.0.0
+    - name: data-aggregator
+      repository: file://../data-aggregator
+      version: 1.0.0
+    description: A Helm chart for deploying the babylon-gateway on Kubernetes
+    digest: eb9ee7ded3c9e9b5f8fb4d45b3e337e4d82f2388533e31a0637f8bb1b76714e2
+    name: babylon-gateway
+    type: application
+    urls:
+    - artifacts/babylon-gateway-1.0.0.tgz
+    version: 1.0.0
+  data-aggregator:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-09-29T13:46:17.814775+02:00"
+    description: A Helm chart for Kubernetes
+    digest: 2129eafa308af954bf44a31440a674f6a274264bf4203840001db566140c3d0d
+    name: data-aggregator
+    type: application
+    urls:
+    - artifacts/data-aggregator-1.0.0.tgz
+    version: 1.0.0
+  gateway-api:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2023-09-29T13:46:17.815243+02:00"
+    description: A Helm chart for babylon-gateway-api on Kubernetes
+    digest: b1032949964f9951991aacda6302974dea9857149f55d75b76b8192ed5d44c34
+    name: gateway-api
+    type: application
+    urls:
+    - artifacts/gateway-api-1.0.0.tgz
+    version: 1.0.0
+generated: "2023-09-29T13:46:17.812908+02:00"

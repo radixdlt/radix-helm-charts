@@ -1,0 +1,9 @@
+dependencies:
+- name: gateway-api
+  repository: file://../gateway-api
+  version: 1.0.0
+- name: data-aggregator
+  repository: file://../data-aggregator
+  version: 1.0.0
+digest: sha256:3bc394d0fbe761c8b46d7139e3e4aff2fe3f43660350099437998c3b2b32ac47
+generated: "2023-09-29T13:44:36.610722+02:00"

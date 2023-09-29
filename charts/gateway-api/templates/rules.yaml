@@ -1,0 +1,109 @@
+{{- if .Values.alerts.enabled -}}
+
+{{- $ns := printf "ng-%s" .Values.config.network.name -}}
+{{- $network := .Values.config.network.name -}}
+{{- $env := .Values.config.network.environment -}}
+{{- $dashboard := printf "%s?var-namespace=%s" .Values.metrics.dashboard_url $ns -}}
+{{- $cluster := .Values.cluster_name -}}
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    {{- include "gateway-api.labels" . | nindent 4 }}
+  name: {{ include "gateway-api.fullname" . }}-rules
+spec:
+  groups:
+  - name: GatewayAPI
+    rules:
+    - alert: HighResponseTimes
+      expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{code=~"[23]..", namespace="{{ $ns }}", container="gateway-api"}[10m])) by (le)) > 2
+      labels:
+        severity: critical
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 10m
+      annotations:
+        summary: "High p99 response times"
+        description: "The p99 response time is over 2s"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighResponseTimes
+      expr: histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{code=~"[23]..", namespace="{{ $ns }}", container="gateway-api"}[10m])) by (le)) > 1
+      labels:
+        severity: warning
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 10m
+      annotations:
+        summary: "High p99 response times"
+        description: "The p99 response time is over 1s"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: DatabaseConnectionLost
+      expr: >
+        sum(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="readonly_database_connection_check", container="gateway-api"}) /
+        count(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="readonly_database_connection_check", container="gateway-api"}) < 0.5
+        or
+        sum(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="readwrite_database_connection_check", container="gateway-api"}) /
+        count(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="readwrite_database_connection_check", container="gateway-api"}) < 0.5
+      labels:
+        severity: critical
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "Database connection lost"
+        description: "More than half of the gateway-api instances cannot connect to the database"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: DataAggregatorIsBehind
+      expr: max(max_over_time(ng_gateway_ledger_tip_round_timestamp_gateway_api_clock_lag_at_last_request_seconds{namespace="{{ $ns }}", container="gateway-api"}[5m])) > 30
+      labels:
+        severity: critical
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "Data-aggregator is behind"
+        description: "The observed data-aggregator lag is over 30 seconds"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighErrorRate
+      expr: sum(rate(ng_gateway_response_error_count{namespace="{{ $ns }}", container="gateway-api"}[5m])) > 20
+      labels:
+        severity: critical
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "High error rate"
+        description: "The error rate is above 20 reqs/s"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+{{- end -}}
