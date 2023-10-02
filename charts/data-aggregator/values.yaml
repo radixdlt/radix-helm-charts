@@ -104,74 +104,137 @@ tolerations:
   value: "true"
   effect: "PreferNoSchedule"
 
-# The podAffinity achieve the following during scheduling:
-# - Place the data-aggregator pods on the same AZ as the gateway-api pods of the same namespace.
-#
-# The goal is to avoid as much as possible cross-AZ traffic between all of those pods.
-#
 affinity:
   podAffinity: {}
 
+global:
+  config:
+    # -- The interface the dotnet service listens to. Shared with gateway_api. Defaults to using values under global.config
+    ASPNETCORE_URLS: "http://*:8080"
+    logging:
+      LogLevel:
+        Default: "Information"
+        Microsoft_Hosting_Lifetime: "Information"
+    postgres:
+      hostname: "postgres-postgresql"
+      hostnameRO: "postgres-postgresql"
+      port: 5432
+      # -- Name of the database to store the babylon-ledger data in.
+      dbname: "radixdlt_ledger"
+      # -- Name of the secret that stores the credentials to connect to postgres. Must be created before deployment.
+      existingSecret: ""
+      # -- Key in the secret that stores the username to connect to postgres. Must be created before deployment.
+      existingSecretUsernameKey: username
+      # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment.
+      existingSecretPasswordKey: password
+
+      min_pool_size: "10"
+      max_pool_size: "1000"
+      connection_lifetime: "600"
+      command_timeout: "600"
+      read_buffer_size: "32768"
+      write_buffer_size: "32768"
+
+    data_aggregator:
+      "MempoolConfiguration":
+        "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
+        "MinDelayBetweenResubmissionsSeconds": 10
+        "StopResubmittingAfterSeconds": 300
+        "PruneCommittedAfterSeconds": "31556952" # one calendar year. This is quoted because it's expected to be passed as a String
+        "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": 604800
+        "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 604800
+        "PruneRequiresMissingFromMempoolForSeconds": 60
+    
+      "LedgerConfirmation":
+        "QuorumRequiresTrustProportion": 0.51
+        "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": true
+        "SufficientlySyncedStateVersionThreshold": 1000
+        "MaxCommitBatchSize": 1000
+        "MaxTransactionPipelineSizePerNode": 3000
+
+    network:
+      # -- Name of the network 
+      name: mainnet
+      # -- Alternative descriptive name of the network to be put into labels
+      environment: "mainnet"
+      # -- Whether to check the TLS certificates of the network nodes.
+      disableCoreAPICertificates: true
+      disableFallbackCertificates: true
+      nodes:
+        - name: Core1
+          # -- Whether to enable this node
+          enabled: true
+          # -- URL of the core node. Must include the path /core to reach the right API endpoints
+          address: "https://somehost/core"
+          # -- Trust weighting for creating a priority list
+          trust_weighting: "1"
+          # -- Credentials to conncet to the core ndoe. The secret must be created seperately before deployment.
+          existingSecret: babylon-gateway-core1-credentials
+          # -- Key of secret with the base64 encoded core node credentials.
+          existingSecretKey: base64-encoded-auth
+
 config:
-  ASPNETCORE_URLS: "http://*:8080"
+  # -- The interface the dotnet service listens to. Shared with gateway_api. Defaults to using values under global.config
+  ASPNETCORE_URLS: 
   logging:
     LogLevel:
-      Default: "Information"
-      Microsoft_Hosting_Lifetime: "Information"
+      Default:
+      Microsoft_Hosting_Lifetime:
+
+  postgres:
+    # -- Hostname of the postgres instance
+    hostname: 
+    # -- Hostname of Read Only postgres instance
+    hostnameRO: 
+    # -- Port that the postgres instance listens on
+    port: 
+    # -- Name of the database to store the babylon-ledger data in. Defaults to using values under global.config
+    dbname: 
+    # -- Name of the secret that stores the credentials to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecret: 
+    # -- Key in the secret that stores the username to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecretUsernameKey: 
+    # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecretPasswordKey: 
+    min_pool_size: 
+    max_pool_size: 
+    connection_lifetime: 
+    command_timeout: 
+    read_buffer_size: 
+    write_buffer_size: 
 
   data_aggregator:
     "MempoolConfiguration":
-      "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
-      "MinDelayBetweenResubmissionsSeconds": 10
-      "StopResubmittingAfterSeconds": 300
-      "PruneCommittedAfterSeconds": "31556952" # one calendar year. This is quoted because it's expected to be passed as a String
-      "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": 604800
-      "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 604800
-      "PruneRequiresMissingFromMempoolForSeconds": 60
+      "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 
+      "MinDelayBetweenResubmissionsSeconds": 
+      "StopResubmittingAfterSeconds": 
+      "PruneCommittedAfterSeconds": 
+      "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": 
+      "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 
+      "PruneRequiresMissingFromMempoolForSeconds": 
     
     "LedgerConfirmation":
-      "QuorumRequiresTrustProportion": 0.51
-      "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": true
-      "SufficientlySyncedStateVersionThreshold": 1000
-      "MaxCommitBatchSize": 1000
-      "MaxTransactionPipelineSizePerNode": 3000
+      "QuorumRequiresTrustProportion": 
+      "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": 
+      "SufficientlySyncedStateVersionThreshold": 
+      "MaxCommitBatchSize": 
+      "MaxTransactionPipelineSizePerNode": 
 
-  postgres:
-    hostname: "postgres-postgresql"
-    hostnameRO: "postgres-postgresql"
-    port: 5432
-    dbname: "radixdlt_ledger"
-    # Use an already existing secret to get the credentials from
-    existingSecret: ""
-    existingSecretUsernameKey: username
-    existingSecretPasswordKey: password
-
-    min_pool_size: "10"
-    max_pool_size: "1000"
-    connection_lifetime: "600"
-    command_timeout: "600"
-    read_buffer_size: "32768"
-    write_buffer_size: "32768"
-
-  # Network specific configurations that. Shared with data_aggregator. Get overwritten by subchart specific .Values.config
-    network:
-      # Name of the network 
-      name: mainnet
-      # Alternative descriptive name of the network to be put into labels
-      environment: "mainnet"
-      # Whether to check the TLS certificates of the network nodes.
-      disableCoreAPICertificates: true
-      disableFallbackCertificates: true
-      # List of core nodes to connect to. Use trust_weighting to create a priority list.
-      nodes:
-          # Unique name of the node. 
-        - name: Core1
-          # Whether to enable this node
-          enabled: true
-          # URL of the core node. Must include the path /core to reach the right API endpoints
-          address: "https://somehost/core"
-          # Trust weighting for creating a priority list
-          trust_weighting: "1"
-          # Credentials to conncet to the core ndoe. The secret must be created seperately before deployment.
-          existingSecret: babylon-gateway-core1-credentials
-          # Key of secret with the base64 encoded core node credentials.
+  network:
+    # -- Name of the network 
+    name: 
+    # -- Alternative descriptive name of the network to be put into labels
+    environment:
+    # -- Whether to check the TLS certificates of the network nodes.
+    disableCoreAPICertificates: 
+    disableFallbackCertificates: 
+    # -- List of core nodes to connect to. Use trust_weighting to create a priority list.
+    nodes:
+      # -- Unique name of the node. 
+      # -- - name: Core1
+      # --   enabled: true
+      # --   address: "https://somehost/core"
+      # --   trust_weighting: "1"
+      # --   # -- Use an already existing secret to get the credentials from
+      # --   existingSecret: babylon-gateway-core1-credentials
+      # --   existingSecretKey: base64-encoded-auth

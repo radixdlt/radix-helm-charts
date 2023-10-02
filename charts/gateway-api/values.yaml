@@ -102,72 +102,14 @@ tolerations:
   value: "true"
   effect: "PreferNoSchedule"
 
-config:
-  # -- The interface the dotnet service listens to. Shared with data_aggregator. Defaults to using values under global.config
-  ASPNETCORE_URLS: 
-  # -- Configurations for changing the logging behaviour. Defaults to using values under global.config
-  logging:
-    LogLevel:
-      Default:
-      Microsoft_Hosting_Lifetime:
-
-  # -- Configurations to conncet the service to a database. Shared with data_aggregator. Defaults to using values under global.config
-  postgres:
-    hostname: 
-    hostnameRO: 
-    port: 
-    # -- Name of the database to store the babylon-ledger data in. Defaults to using values under global.config
-    dbname: 
-    # -- Name of the secret that stores the credentials to connect to postgres. Must be created before deployment. Defaults to using values under global.config
-    existingSecret: 
-    # -- Key in the secret that stores the username to connect to postgres. Must be created before deployment. Defaults to using values under global.config
-    existingSecretUsernameKey: 
-    # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment. Defaults to using values under global.config
-    existingSecretPasswordKey: 
-    min_pool_size: 
-    max_pool_size: 
-    connection_lifetime: 
-    command_timeout: 
-    read_buffer_size: 
-    write_buffer_size: 
-
-  gatewayapi:
-    EnableSwagger: 
-    MaxPageSize: 
-    PreventReadRequestsIfDbLedgerIsBehind: 
-    PreventConstructionRequestsIfDbLedgerIsBehind: 
-
-  # -- Network specific configurations that. Shared with data_aggregator. Defaults to using values under global.config
-  network:
-    # -- Name of the network 
-    name: 
-    # -- Alternative descriptive name of the network to be put into labels
-    environment:
-    # -- Whether to check the TLS certificates of the network nodes.
-    disableCoreAPICertificates: 
-    disableFallbackCertificates: 
-    # -- List of core nodes to connect to. Use trust_weighting to create a priority list.
-    nodes:
-      # -- Unique name of the node. 
-      # -- - name: Core1
-      # --   enabled: true
-      # --   address: "https://somehost/core"
-      # --   trust_weighting: "1"
-      # --   # -- Use an already existing secret to get the credentials from
-      # --   existingSecret: babylon-gateway-core1-credentials
-      # --   existingSecretKey: base64-encoded-auth
-
 global:
   config:
     # -- The interface the dotnet service listens to. Shared with data_aggregator. Defaults to using values under global.config
     ASPNETCORE_URLS: "http://*:8080"
-    # -- Configurations for changing the logging behaviour. Defaults to using values under global.config
     logging:
       LogLevel:
         Default: "Information"
         Microsoft_Hosting_Lifetime: "Information"
-
-    # -- Configurations to conncet the service to a database. Shared with data_aggregator.
     postgres:
       hostname: "postgres-postgresql"
       hostnameRO: "postgres-postgresql"
@@ -194,7 +136,6 @@ global:
       PreventReadRequestsIfDbLedgerIsBehind: ""
       PreventConstructionRequestsIfDbLedgerIsBehind: ""
 
-    # -- Network specific configurations that. Shared with data_aggregator. Get overwritten by subchart specific .Values.config
     network:
       # -- Name of the network 
       name: mainnet
@@ -203,9 +144,7 @@ global:
       # -- Whether to check the TLS certificates of the network nodes.
       disableCoreAPICertificates: true
       disableFallbackCertificates: true
-      # -- List of core nodes to connect to. Use trust_weighting to create a priority list.
       nodes:
-          # -- Unique name of the node. 
         - name: Core1
           # -- Whether to enable this node
           enabled: true
@@ -217,3 +156,58 @@ global:
           existingSecret: babylon-gateway-core1-credentials
           # -- Key of secret with the base64 encoded core node credentials.
           existingSecretKey: base64-encoded-auth
+
+config:
+  # -- The interface the dotnet service listens to. Shared with data_aggregator. Defaults to using values under global.config
+  ASPNETCORE_URLS: 
+  logging:
+    LogLevel:
+      Default:
+      Microsoft_Hosting_Lifetime:
+
+  postgres:
+    # -- Hostname of the postgres instance
+    hostname: 
+    # -- Hostname of Read Only postgres instance
+    hostnameRO: 
+    # -- Port that the postgres instance listens on
+    port: 
+    # -- Name of the database to store the babylon-ledger data in. Defaults to using values under global.config
+    dbname: 
+    # -- Name of the secret that stores the credentials to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecret: 
+    # -- Key in the secret that stores the username to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecretUsernameKey: 
+    # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecretPasswordKey: 
+    min_pool_size: 
+    max_pool_size: 
+    connection_lifetime: 
+    command_timeout: 
+    read_buffer_size: 
+    write_buffer_size: 
+
+  gatewayapi:
+    EnableSwagger: 
+    MaxPageSize: 
+    PreventReadRequestsIfDbLedgerIsBehind: 
+    PreventConstructionRequestsIfDbLedgerIsBehind: 
+
+  network:
+    # -- Name of the network 
+    name: 
+    # -- Alternative descriptive name of the network to be put into labels
+    environment:
+    # -- Whether to check the TLS certificates of the network nodes.
+    disableCoreAPICertificates: 
+    disableFallbackCertificates: 
+    # -- List of core nodes to connect to. Use trust_weighting to create a priority list.
+    nodes:
+      # -- Unique name of the node. 
+      # -- - name: Core1
+      # --   enabled: true
+      # --   address: "https://somehost/core"
+      # --   trust_weighting: "1"
+      # --   # -- Use an already existing secret to get the credentials from
+      # --   existingSecret: babylon-gateway-core1-credentials
+      # --   existingSecretKey: base64-encoded-auth
