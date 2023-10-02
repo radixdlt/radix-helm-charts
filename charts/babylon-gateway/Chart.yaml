@@ -12,6 +12,12 @@ dependencies:
 - name: gateway-api
   version: "1.0.0"
   repository: "file://../gateway-api"
+  condition: gateway-api.enabled
 - name: data-aggregator
   version: "1.0.0"
   repository: "file://../data-aggregator"
+  condition: data-aggregator.enabled
+- name: postgresql
+  version: "13.0.0"
+  repository: https://charts.bitnami.com/bitnami
+  condition: postgresql.enabled

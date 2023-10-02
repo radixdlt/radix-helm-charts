@@ -7,29 +7,29 @@ data:
     {
         "Logging": {
             "LogLevel": {
-                "Default": "{{.Values.config.logging.LogLevel.Default}}",
-                "Microsoft.Hosting.Lifetime": "{{.Values.config.logging.LogLevel.Microsoft_Hosting_Lifetime}}"
+                "Default": "{{ .Values.config.logging.LogLevel.Default | default .Values.global.config.logging.LogLevel.Default }}",
+                "Microsoft.Hosting.Lifetime": "{{ .Values.config.logging.LogLevel.Microsoft_Hosting_Lifetime | default .Values.global.config.logging.LogLevel.Microsoft_Hosting_Lifetime }}"
             }
         },
         "DataAggregator": {
             "Mempool": {
-                "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.MinDelayBetweenMissingFromMempoolAndResubmissionSeconds}},
-                "MinDelayBetweenResubmissionsSeconds":  {{.Values.config.data_aggregator.MempoolConfiguration.MinDelayBetweenResubmissionsSeconds}},
-                "StopResubmittingAfterSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.StopResubmittingAfterSeconds}},
-                "PruneCommittedAfterSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneCommittedAfterSeconds}},
-                "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds}},
-                "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds}},
-                "PruneRequiresMissingFromMempoolForSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneRequiresMissingFromMempoolForSeconds}}
+                "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.MinDelayBetweenMissingFromMempoolAndResubmissionSeconds | default .Values.global.config.data_aggregator.MempoolConfiguration.MinDelayBetweenMissingFromMempoolAndResubmissionSeconds}},
+                "MinDelayBetweenResubmissionsSeconds":  {{.Values.config.data_aggregator.MempoolConfiguration.MinDelayBetweenResubmissionsSeconds | default .Values.global.config.data_aggregator.MempoolConfiguration.MinDelayBetweenResubmissionsSeconds}},
+                "StopResubmittingAfterSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.MinDelayBetweenResubmissionsSeconds | default .Values.global.config.data_aggregator.MempoolConfiguration.StopResubmittingAfterSeconds}},
+                "PruneCommittedAfterSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneCommittedAfterSeconds | default .Values.global.config.data_aggregator.MempoolConfiguration.PruneCommittedAfterSeconds}},
+                "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds | default .Values.global.config.data_aggregator.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds}},
+                "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds | default .Values.global.config.data_aggregator.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds}},
+                "PruneRequiresMissingFromMempoolForSeconds": {{.Values.config.data_aggregator.MempoolConfiguration.PruneRequiresMissingFromMempoolForSeconds | default .Values.global.config.data_aggregator.MempoolConfiguration.PruneRequiresMissingFromMempoolForSeconds}}
             },
             "LedgerConfirmation": {
-                "QuorumRequiresTrustProportion": {{.Values.config.data_aggregator.LedgerConfirmation.QuorumRequiresTrustProportion}},
-                "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": {{.Values.config.data_aggregator.LedgerConfirmation.OnlyUseSufficientlySyncedUpNodesForQuorumCalculation}},
-                "SufficientlySyncedStateVersionThreshold": {{.Values.config.data_aggregator.LedgerConfirmation.SufficientlySyncedStateVersionThreshold}},
-                "MaxCommitBatchSize": {{.Values.config.data_aggregator.LedgerConfirmation.MaxCommitBatchSize}},
-                "MaxTransactionPipelineSizePerNode": {{.Values.config.data_aggregator.LedgerConfirmation.MaxTransactionPipelineSizePerNode}}
+                "QuorumRequiresTrustProportion": {{.Values.config.data_aggregator.LedgerConfirmation.QuorumRequiresTrustProportion | default .Values.global.config.data_aggregator.LedgerConfirmation.QuorumRequiresTrustProportion}},
+                "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": {{.Values.config.data_aggregator.LedgerConfirmation.OnlyUseSufficientlySyncedUpNodesForQuorumCalculation | default .Values.global.config.data_aggregator.LedgerConfirmation.OnlyUseSufficientlySyncedUpNodesForQuorumCalculation}},
+                "SufficientlySyncedStateVersionThreshold": {{.Values.config.data_aggregator.LedgerConfirmation.SufficientlySyncedStateVersionThreshold | default .Values.global.config.data_aggregator.LedgerConfirmation.SufficientlySyncedStateVersionThreshold}},
+                "MaxCommitBatchSize": {{.Values.config.data_aggregator.LedgerConfirmation.MaxCommitBatchSize | default .Values.global.config.data_aggregator.LedgerConfirmation.MaxCommitBatchSize}},
+                "MaxTransactionPipelineSizePerNode": {{.Values.config.data_aggregator.LedgerConfirmation.MaxTransactionPipelineSizePerNode | default .Values.global.config.data_aggregator.LedgerConfirmation.MaxTransactionPipelineSizePerNode}}
             },
             "Network": {
-                "NetworkName": "{{.Values.config.network.name}}",
+                "NetworkName": "{{.Values.config.network.name | default .Values.global.config.network.name}}",
                 "DisableCoreApiHttpsCertificateChecks": {{.Values.disableCoreAPICertificates}},
                 "CoreApiNodes": [
                     {{- $nodes := .Values.config.network.DataAggregatorNodes }}

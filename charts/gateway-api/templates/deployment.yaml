@@ -43,20 +43,20 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: config.ASPNETCORE_URLS
-              value: "{{ .Values.config.ASPNETCORE_URLS }}"
+              value: "{{ .Values.config.ASPNETCORE_URLS | default .Values.global.config.ASPNETCORE_URLS }}"
             - name: PrometheusMetricsPort
               value: "{{ .Values.metrics.port }}"
             - name: EnableSwagger
-              value: "{{ .Values.config.gatewayapi.EnableSwagger }}"
+              value: "{{ .Values.config.gatewayapi.EnableSwagger | default .Values.global.config.gatewayapi.EnableSwagger }}"
             - name: GatewayApi__Network__DisableCoreApiHttpsCertificateChecks
-              value: "{{ .Values.config.network.disableCoreAPICertificates }}"
+              value: "{{ .Values.config.network.disableCoreAPICertificates | default .Values.global.config.network.disableCoreAPICertificates }}"
             - name: GatewayApi__Network__DisableFallbackGatewayApiHttpsCertificateChecks
-              value: "{{ .Values.config.network.disableFallbackCertificates }}"
+              value: "{{ .Values.config.network.disableFallbackCertificates | default .Values.global.config.network.disableFallbackCertificates }}"
             - name: GatewayApi__Network__NetworkName
-              value: "{{ .Values.config.network.name}}"
+              value: "{{ .Values.config.network.name | default .Values.global.config.network.name}}"
 
             {{ $i := 0 | int}}
-            {{- range $node := $.Values.config.network.nodes }}          
+            {{- range $node := $.Values.config.network.nodes | default $.Values.global.config.network.nodes }}          
             {{ if $node.enabled }}
             - name: GatewayApi__Network__CoreApiNodes__{{ $i }}__Name
               value:  {{ $node.name}}
@@ -74,25 +74,25 @@ spec:
             {{- end }}
 
             - name: POSTGRES_HOSTNAME
-              value: "{{ .Values.config.postgres.hostname }}"
+              value: "{{ .Values.config.postgres.hostname | default .Values.global.config.postgres.hostname }}"
             - name: POSTGRES_HOSTNAME_RO
-              value: "{{ .Values.config.postgres.hostnameRO }}"
+              value: "{{ .Values.config.postgres.hostname | default .Values.global.config.postgres.hostnameRO }}"
             - name: POSTGRES_PORT
-              value: "{{ .Values.config.postgres.port }}"
+              value: "{{ .Values.config.postgres.port | default .Values.global.config.postgres.port }}"
             - name: POSTGRES_DB_NAME
-              value: {{ .Values.config.postgres.dbname }}
+              value: {{ .Values.config.postgres.dbname | default .Values.global.config.postgres.dbname }}
             - name: POSTGRES_MIN_POOL_SIZE
-              value: {{ .Values.config.postgres.min_pool_size | quote }}
+              value: {{ .Values.config.postgres.min_pool_size | default .Values.global.config.postgres.min_pool_size | quote }}
             - name: POSTGRES_MAX_POOL_SIZE
-              value: {{ .Values.config.postgres.max_pool_size | quote }}
+              value: {{ .Values.config.postgres.max_pool_size | default .Values.global.config.postgres.max_pool_size | quote }}
             - name: POSTGRES_CONNECTION_LIFETIME
-              value: {{ .Values.config.postgres.connection_lifetime | quote }}
+              value: {{ .Values.config.postgres.connection_lifetime | default .Values.global.config.postgres.connection_lifetime | quote }}
             - name: POSTGRES_COMMAND_TIMEOUT
-              value: {{ .Values.config.postgres.command_timeout | quote }}
+              value: {{ .Values.config.postgres.command_timeout | default .Values.global.config.postgres.command_timeout | quote }}
             - name: POSTGRES_READ_BUFFER_SIZE
-              value: {{ .Values.config.postgres.read_buffer_size | quote }}
+              value: {{ .Values.config.postgres.read_buffer_size | default .Values.global.config.postgres.read_buffer_size | quote }}
             - name: POSTGRES_WRITE_BUFFER_SIZE
-              value: {{ .Values.config.postgres.write_buffer_size | quote }}
+              value: {{ .Values.config.postgres.write_buffer_size | default .Values.global.config.postgres.write_buffer_size | quote }}
             - name: POSTGRES_SUPERUSER
               valueFrom:
                 secretKeyRef:
@@ -110,13 +110,13 @@ spec:
             - name: GatewayApi__Endpoint__GatewayApiVersion
               value: "{{ .Values.image.tag }}"
             - name: GatewayApi__Endpoint_MaxPageSize
-              value: "{{ .Values.config.gatewayapi.MaxPageSize }}"
+              value: "{{ .Values.config.gatewayapi.MaxPageSize | default .Values.global.config.gatewayapi.MaxPageSize }}"
             - name: GatewayApi__AcceptableLedgerLag__PreventReadRequestsIfDbLedgerIsBehind
-              value: "{{ .Values.config.gatewayapi.PreventReadRequestsIfDbLedgerIsBehind }}"
+              value: "{{ .Values.config.gatewayapi.PreventReadRequestsIfDbLedgerIsBehind | default .Values.global.config.gatewayapi.PreventReadRequestsIfDbLedgerIsBehind }}"
             - name: GatewayApi__AcceptableLedgerLag__PreventConstructionRequestsIfDbLedgerIsBehind
-              value: "{{ .Values.config.gatewayapi.PreventConstructionRequestsIfDbLedgerIsBehind }}"
+              value: "{{ .Values.config.gatewayapi.PreventConstructionRequestsIfDbLedgerIsBehind | default .Values.global.config.gatewayapi.PreventConstructionRequestsIfDbLedgerIsBehind }}"
             - name: GatewayApi__Network__NetworkName
-              value: {{ .Values.config.network.name }}      
+              value: {{ .Values.config.network.name | default .Values.global.config.network.name }}      
           volumeMounts:
             - name: config-volume
               mountPath: "/app/appsettings.ProductionOverrides.json"

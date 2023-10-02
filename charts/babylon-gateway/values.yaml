@@ -1,0 +1,82 @@
+gateway-api:
+  enabled: true
+
+data-aggregator:
+  enabled: true
+
+postgresql:
+  enabled: false
+  auth:
+  # relates to global.config.postgres.existingSecret
+  # This secret sets the credentials in the postgres installation
+    existingSecret: "babylon-gateway-postgres-credentials"
+    username: postgres
+    database: radixdlt_ledger
+    secretKeys:
+      adminPasswordKey: postgres-password
+      userPasswordKey: password
+      replicationPasswordKey: replication-password
+
+
+global:
+  config:
+    ASPNETCORE_URLS: "http://*:8081"
+    logging:
+      LogLevel:
+        Default: "Information"
+        Microsoft_Hosting_Lifetime: "Information"
+
+    postgres:
+      hostname: "postgres-postgresql"
+      port: 5432
+      dbname: "radixdlt_ledger"
+      # Use an already existing secret to get the credentials from
+      existingSecret: "babylon-gateway-postgres-credentials"
+      existingSecretUsernameKey: username
+      existingSecretPasswordKey: password
+
+      min_pool_size: "10"
+      max_pool_size: "1000"
+      connection_lifetime: "600"
+      command_timeout: "600"
+      read_buffer_size: "32768"
+      write_buffer_size: "32768"
+
+    gatewayapi:
+      EnableSwagger: true
+      MaxPageSize: ""
+      PreventReadRequestsIfDbLedgerIsBehind: ""
+      PreventConstructionRequestsIfDbLedgerIsBehind: ""
+
+    data_aggregator:
+      "MempoolConfiguration":
+        "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
+        "MinDelayBetweenResubmissionsSeconds": 10
+        "StopResubmittingAfterSeconds": 300
+        "PruneCommittedAfterSeconds": "31556952" # one calendar year. This is quoted because it's expected to be passed as a String
+        "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": 604800
+        "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 604800
+        "PruneRequiresMissingFromMempoolForSeconds": 60
+      
+      "LedgerConfirmation":
+        "QuorumRequiresTrustProportion": 0.51
+        "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": true
+        "SufficientlySyncedStateVersionThreshold": 1000
+        "MaxCommitBatchSize": 1000
+        "MaxTransactionPipelineSizePerNode": 3000
+
+    network:
+      name: mainnet
+      # Value to label resources according to the network used
+      environment: "mainnet"
+      disableCoreAPICertificates: true
+      disableFallbackCertificates: true
+      nodes:
+        # Unique name of the node. 
+        - name: Core1
+          enabled: true
+          address: "https://somehost/core"
+          trust_weighting: "1"
+          # Use an already existing secret to get the credentials from
+          existingSecret: babylon-gateway-core1-credentials
+          existingSecretKey: base64-encoded-auth

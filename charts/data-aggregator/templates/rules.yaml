@@ -1,8 +1,8 @@
 {{- if .Values.alerts.enabled -}}
 
-{{- $ns := printf "ng-%s" .Values.config.network.name -}}
-{{- $network := .Values.config.network.name -}}
-{{- $env := .Values.config.network.environment -}}
+{{- $ns := printf "ng-%s" .Values.config.network.name | default .Values.global.config.network.name -}}
+{{- $network := .Values.config.network.name | default .Values.global.config.network.name -}}
+{{- $env := .Values.config.network.environment | default .Values.global.config.network.environment -}}
 {{- $dashboard := printf "%s?var-namespace=%s" .Values.metrics.dashboard_url $ns -}}
 {{- $cluster := .Values.cluster_name -}}
 

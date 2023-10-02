@@ -153,18 +153,25 @@ config:
     read_buffer_size: "32768"
     write_buffer_size: "32768"
 
-  network:
-    name: mainnet
-    # Value to label resources according to the network used
-    environment: "mainnet"
-    disableCoreAPICertificates: true
-    disableFallbackCertificates: true
-    nodes:
-      # Unique name of the node. 
-      - name: Core1
-        enabled: true
-        address: "https://somehost/core"
-        trust_weighting: "1"
-        # Use an already existing secret to get the credentials from
-        existingSecret: babylon-gateway-core1-credentials
-        existingSecretKey: base64-encoded-auth
+  # Network specific configurations that. Shared with data_aggregator. Get overwritten by subchart specific .Values.config
+    network:
+      # Name of the network 
+      name: mainnet
+      # Alternative descriptive name of the network to be put into labels
+      environment: "mainnet"
+      # Whether to check the TLS certificates of the network nodes.
+      disableCoreAPICertificates: true
+      disableFallbackCertificates: true
+      # List of core nodes to connect to. Use trust_weighting to create a priority list.
+      nodes:
+          # Unique name of the node. 
+        - name: Core1
+          # Whether to enable this node
+          enabled: true
+          # URL of the core node. Must include the path /core to reach the right API endpoints
+          address: "https://somehost/core"
+          # Trust weighting for creating a priority list
+          trust_weighting: "1"
+          # Credentials to conncet to the core ndoe. The secret must be created seperately before deployment.
+          existingSecret: babylon-gateway-core1-credentials
+          # Key of secret with the base64 encoded core node credentials.

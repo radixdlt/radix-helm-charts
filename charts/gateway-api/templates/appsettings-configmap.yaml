@@ -8,13 +8,13 @@ data:
     {
         "config.logging": {
             "LogLevel": {
-                "Default": "{{.Values.config.logging.LogLevel.Default}}",
-                "Microsoft.Hosting.Lifetime": "{{.Values.config.logging.LogLevel.Microsoft_Hosting_Lifetime}}"
+                "Default": "{{.Values.config.logging.LogLevel.Default | default .Values.global.config.logging.LogLevel.Default}}",
+                "Microsoft.Hosting.Lifetime": "{{ .Values.config.logging.LogLevel.Microsoft_Hosting_Lifetime | default .Values.global.config.logging.LogLevel.Microsoft_Hosting_Lifetime }}"
             }
         },
         "GatewayApi": {
             "Network": {
-                "NetworkName": "{{.Values.config.network.name}}",
+                "NetworkName": "{{.Values.config.network.name | default .Values.global.config.network.name}}",
                 "CoreApiNodes": [
                     {{- $nodes := .Values.config.network.CoreApiNodes }}
                     {{- range $node := $nodes  }}
