@@ -26,8 +26,9 @@ migrations:
   enableInitContainer: false
 
 metrics:
-  port: 1234
+  # -- Whether to install/enable the metrics endpoints and collect them using ServiceMonitors
   enabled: false
+  port: 1234
   serviceMonitor:
     enabled: true
     interval: 5s

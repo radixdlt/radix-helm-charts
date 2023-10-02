@@ -82,8 +82,11 @@ A Helm chart for babylon-gateway-api on Kubernetes
 | livenessProbe.initialDelaySeconds | int | `30` |  |
 | livenessProbe.periodSeconds | int | `10` |  |
 | livenessProbe.timeoutSeconds | int | `5` |  |
-| metrics | object | `{"dashboard_url":"https://grafana.com","enabled":false,"port":1235,"serviceMonitor":{"enabled":true,"interval":"15s"}}` | Configurations for installing/enabling the metrics endpoints and collect them using ServiceMonitors |
 | metrics.dashboard_url | string | `"https://grafana.com"` | Url to a default dashboard for the babylon-gateway to be linked in the alerts |
+| metrics.enabled | bool | `false` | Whether to install/enable the metrics endpoints and collect them using ServiceMonitors |
+| metrics.port | int | `1235` |  |
+| metrics.serviceMonitor.enabled | bool | `true` |  |
+| metrics.serviceMonitor.interval | string | `"15s"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |

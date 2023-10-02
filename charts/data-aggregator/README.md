@@ -101,7 +101,7 @@ A Helm chart for Kubernetes
 | livenessProbe.periodSeconds | int | `10` |  |
 | livenessProbe.timeoutSeconds | int | `5` |  |
 | metrics.dashboard_url | string | `"https://grafana.com"` |  |
-| metrics.enabled | bool | `false` |  |
+| metrics.enabled | bool | `false` | Whether to install/enable the metrics endpoints and collect them using ServiceMonitors |
 | metrics.port | int | `1234` |  |
 | metrics.serviceMonitor.enabled | bool | `true` |  |
 | metrics.serviceMonitor.interval | string | `"5s"` |  |

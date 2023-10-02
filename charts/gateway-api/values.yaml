@@ -37,8 +37,9 @@ livenessProbe:
   failureThreshold: 5
   periodSeconds: 10
 
-# -- Configurations for installing/enabling the metrics endpoints and collect them using ServiceMonitors
+
 metrics:
+  # -- Whether to install/enable the metrics endpoints and collect them using ServiceMonitors
   enabled: false
   port: 1235
   serviceMonitor:
