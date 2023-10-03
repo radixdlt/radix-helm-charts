@@ -26,6 +26,21 @@ NAME                            CHART VERSION   APP VERSION     DESCRIPTION
 radixdlt/babylon-gateway        1.0.0           1.0.0           ...
 ```
 
+### Installation of charts
+
+Make sure to execute ```helm dep up``` to download the latest sub charts. 
+#### Latest appVersion
+Please be aware that this chart will not be updated on every release of the babylon-gateway if no changes in deployment structure have occured. The appVersion will therefor very likely be outdated. Set the appVersion or image tag to the latest version. You can find the `appVersion` in the corresponding `Chart.yaml` and the image tag in the `values.yaml`. Only one needs to be set. You can find the latest version of the babylon-gateway [here](https://github.com/radixdlt/babylon-gateway/releases).
+
+
+### Creating mandatory secrets before deployment
+```
+kubectl create secret generic  babylon-gateway-postgres-credentials --from-literal=u
+sername=postgres --from-literal=password=postgres
+
+kubectl create secret generic  babylon-gateway-core1-credentials --from-literal=base64-encoded-auth=klFVKSUYFSD
+```
+
 ### Helmfile
 
 ```yaml

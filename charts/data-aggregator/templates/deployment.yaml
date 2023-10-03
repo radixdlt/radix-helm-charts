@@ -30,12 +30,12 @@ spec:
       serviceAccountName: {{ include "data-aggregator.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.migrations.enableInitContainer }}      
+      {{- if .Values.config.migrations.enableInitContainer }}      
       initContainers:
         - name: db-migrations
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.migrations.image.repository }}:{{ .Values.migrations.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.config.migrations.image.repository }}:{{ .Values.config.migrations.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: ASPNETCORE_URLS
@@ -47,7 +47,7 @@ spec:
             - name: POSTGRES_DB_NAME
               value: "{{ .Values.config.postgres.dbname | default .Values.global.config.postgres.dbname}}"
             - name: WIPE_DATABASE
-              value: "{{.Values.config.postgres.wipe_database}}"
+              value: "{{.Values.config.postgres.wipe_database| default .Values.global.config.postgres.wipe_database}}"
             - name: POSTGRES_MIN_POOL_SIZE
               value: {{ .Values.config.postgres.min_pool_size | default .Values.global.config.postgres.min_pool_size | quote }}
             - name: POSTGRES_MAX_POOL_SIZE
@@ -63,13 +63,13 @@ spec:
             - name: POSTGRES_SUPERUSER
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secrets
-                  key: postgresqlUsername
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretUsernameKey | quote }}
             - name: POSTGRES_SUPERUSER_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: postgres-secrets
-                  key: postgresql-password
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretPasswordKey | quote }}
             - name: ConnectionStrings__NetworkGatewayMigrations
               value: Host=$(POSTGRES_HOSTNAME):$(POSTGRES_PORT);Database=$(POSTGRES_DB_NAME);Username=$(POSTGRES_SUPERUSER);Password=$(POSTGRES_SUPERUSER_PASSWORD);Minimum Pool Size=$(POSTGRES_MIN_POOL_SIZE);Maximum Pool Size=$(POSTGRES_MAX_POOL_SIZE);Connection Lifetime=$(POSTGRES_CONNECTION_LIFETIME);Command Timeout=$(POSTGRES_COMMAND_TIMEOUT);Read Buffer Size=$(POSTGRES_READ_BUFFER_SIZE);Write Buffer Size=$(POSTGRES_WRITE_BUFFER_SIZE);Include Error Detail=true
       {{- end }}
@@ -83,7 +83,7 @@ spec:
             - name: ASPNETCORE_URLS
               value: "{{ .Values.config.ASPNETCORE_URLS | default .Values.global.config.ASPNETCORE_URLS }}"
             - name: PrometheusMetricsPort
-              value: "1234" 
+              value: "{{ .Values.metrics.port }}" 
             - name: DataAggregator__Network__NetworkName
               value: {{ .Values.config.network.name | default .Values.global.config.network.name }}
             - name: DataAggregator__Network__DisableCoreApiHttpsCertificateChecks

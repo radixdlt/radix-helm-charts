@@ -10,10 +10,10 @@ alert_thresholds:
 cluster_name: rdx-works-main-dev
 
 alerts:
-  enabled: true
+  enabled: false
 
 image:
-  repository: docker.io/radixdlt/ng-babylon-data-aggregator
+  repository: docker.io/radixdlt/babylon-ng-data-aggregator
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   # tag: ""
@@ -21,9 +21,6 @@ image:
 imagePullSecrets:
 nameOverride: ""
 fullnameOverride: ""
-
-migrations:
-  enableInitContainer: false
 
 metrics:
   # -- Whether to install/enable the metrics endpoints and collect them using ServiceMonitors
@@ -123,7 +120,7 @@ global:
       # -- Name of the database to store the babylon-ledger data in.
       dbname: "radixdlt_ledger"
       # -- Name of the secret that stores the credentials to connect to postgres. Must be created before deployment.
-      existingSecret: ""
+      existingSecret: "babylon-gateway-postgres-credentials"
       # -- Key in the secret that stores the username to connect to postgres. Must be created before deployment.
       existingSecretUsernameKey: username
       # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment.
@@ -135,7 +132,11 @@ global:
       command_timeout: "600"
       read_buffer_size: "32768"
       write_buffer_size: "32768"
+      wipe_database: false
 
+        # tag: 
+  # Overrides the image tag whose default is the chart appVersion.
+  # tag: ""
     data_aggregator:
       "MempoolConfiguration":
         "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
@@ -168,7 +169,7 @@ global:
           # -- URL of the core node. Must include the path /core to reach the right API endpoints
           address: "https://somehost/core"
           # -- Trust weighting for creating a priority list
-          trust_weighting: "1"
+          trustWeighting: "1"
           # -- Credentials to conncet to the core ndoe. The secret must be created seperately before deployment.
           existingSecret: babylon-gateway-core1-credentials
           # -- Key of secret with the base64 encoded core node credentials.
@@ -203,6 +204,7 @@ config:
     command_timeout: 
     read_buffer_size: 
     write_buffer_size: 
+    wipe_database: false
 
   data_aggregator:
     "MempoolConfiguration":
@@ -221,6 +223,12 @@ config:
       "MaxCommitBatchSize": 
       "MaxTransactionPipelineSizePerNode": 
 
+  migrations:
+    enableInitContainer: true
+    image:
+      repository: docker.io/radixdlt/babylon-ng-database-migrations
+      # tag:
+
   network:
     # -- Name of the network 
     name: 
@@ -229,13 +237,13 @@ config:
     # -- Whether to check the TLS certificates of the network nodes.
     disableCoreAPICertificates: 
     disableFallbackCertificates: 
-    # -- List of core nodes to connect to. Use trust_weighting to create a priority list.
+    # -- List of core nodes to connect to. Use trustWeighting to create a priority list.
     nodes:
       # -- Unique name of the node. 
       # -- - name: Core1
       # --   enabled: true
       # --   address: "https://somehost/core"
-      # --   trust_weighting: "1"
+      # --   trustWeighting: "1"
       # --   # -- Use an already existing secret to get the credentials from
       # --   existingSecret: babylon-gateway-core1-credentials
       # --   existingSecretKey: base64-encoded-auth

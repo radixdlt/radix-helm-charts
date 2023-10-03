@@ -30,7 +30,7 @@ data:
             },
             "Network": {
                 "NetworkName": "{{.Values.config.network.name | default .Values.global.config.network.name}}",
-                "DisableCoreApiHttpsCertificateChecks": {{.Values.disableCoreAPICertificates}},
+                "DisableCoreApiHttpsCertificateChecks": {{.Values.config.network.disableCoreAPICertificates | default .Values.global.config.network.disableCoreAPICertificates }},
                 "CoreApiNodes": [
                     {{- $nodes := .Values.config.network.DataAggregatorNodes }}
                     {{- range $node := $nodes  }}

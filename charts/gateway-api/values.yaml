@@ -9,9 +9,8 @@ cluster_name: babylon-gateway-cluster
 
 alerts:
   # -- Whether or not to install the alerts using alertmanager
-  enabled: true
+  enabled: false
   
-
 image:
   # -- Image of the babylon gateway api 
   repository: docker.io/radixdlt/babylon-ng-gateway-api
@@ -89,7 +88,7 @@ resources:
     memory: 750Mi
 
 autoscaling:
-  enabled: true
+  enabled: false
   minReplicas: 2
   maxReplicas: 100
   targetCPUUtilizationPercentage: 70
@@ -134,8 +133,8 @@ global:
     gatewayapi:
       EnableSwagger: true
       MaxPageSize: ""
-      PreventReadRequestsIfDbLedgerIsBehind: ""
-      PreventConstructionRequestsIfDbLedgerIsBehind: ""
+      PreventReadRequestsIfDbLedgerIsBehind: false
+      PreventConstructionRequestsIfDbLedgerIsBehind: false
 
     network:
       # -- Name of the network 
@@ -152,7 +151,7 @@ global:
           # -- URL of the core node. Must include the path /core to reach the right API endpoints
           address: "https://somehost/core"
           # -- Trust weighting for creating a priority list
-          trust_weighting: "1"
+          trustWeighting: "1"
           # -- Credentials to conncet to the core ndoe. The secret must be created seperately before deployment.
           existingSecret: babylon-gateway-core1-credentials
           # -- Key of secret with the base64 encoded core node credentials.
@@ -202,13 +201,13 @@ config:
     # -- Whether to check the TLS certificates of the network nodes.
     disableCoreAPICertificates: 
     disableFallbackCertificates: 
-    # -- List of core nodes to connect to. Use trust_weighting to create a priority list.
+    # -- List of core nodes to connect to. Use trustWeighting to create a priority list.
     nodes:
       # -- Unique name of the node. 
       # -- - name: Core1
       # --   enabled: true
       # --   address: "https://somehost/core"
-      # --   trust_weighting: "1"
+      # --   trustWeighting: "1"
       # --   # -- Use an already existing secret to get the credentials from
       # --   existingSecret: babylon-gateway-core1-credentials
       # --   existingSecretKey: base64-encoded-auth

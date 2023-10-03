@@ -1,14 +1,37 @@
 gateway-api:
   # -- Enable or disable the deployment of the gateway-api
   enabled: true
+  replicaCount: 0
+  autoscaling:
+    enabled: false
+  ingress:
+    enabled: false
+  metrics:
+    enabled: false
+  alerts:
+    enabled: false
 
 data-aggregator:
+  replicaCount: 
   # -- Enable or disable the deployment of the data-aggregator
   enabled: true
+  autoscaling:
+    enabled: false
+  ingress:
+    enabled: false
+  metrics:
+    enabled: false
+  alerts:
+    enabled: false
+  config:
+    migrations:
+      enabled: true
 
 postgresql:
   # -- Enable or disable the deployment of the postgresql database. See the postgres chart for more information.
   enabled: false
+  persistence:
+    enabled: false
   auth:
     # -- The name of the postgres user
     username: postgres
@@ -34,7 +57,8 @@ global:
 
     postgres:
       # -- The name of database to connect to. Set this to your postgres service name if you deploy postgres with the same chart
-      hostname: "postgres-postgresql"
+      hostname: "postgresql"
+      hostnameRO: "postgresql"
       # -- The port of database to connect to.
       port: 5432
       # -- The name of database to store the babylon-ledger in.
@@ -58,9 +82,9 @@ global:
       EnableSwagger: true
       MaxPageSize: ""
       # -- Configure behaviour of the gatewayapi depending on Ledger lag
-      PreventReadRequestsIfDbLedgerIsBehind: ""
+      PreventReadRequestsIfDbLedgerIsBehind: false
       # -- Configure behaviour of the gatewayapi depending on Ledger lag
-      PreventConstructionRequestsIfDbLedgerIsBehind: ""
+      PreventConstructionRequestsIfDbLedgerIsBehind: false
 
     data_aggregator:
       "MempoolConfiguration":
@@ -92,7 +116,7 @@ global:
           enabled: true
           # -- URL of the core node both gateway-api and data-aggregator are connecting to
           address: "https://somehost/core"
-          trust_weighting: "1"
+          trustWeighting: "1"
           # -- The already existing secret containing the core ndoe credentials for the babylon-gateway applications
           existingSecret: babylon-gateway-core1-credentials
           # -- The key in the secret conaining a base64 encoded credential set.

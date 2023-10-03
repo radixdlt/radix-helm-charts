@@ -1,6 +1,6 @@
 # gateway-api
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.0.0](https://img.shields.io/badge/AppVersion-v1.0.0-informational?style=flat-square)
 
 A Helm chart for babylon-gateway-api on Kubernetes.
 
@@ -8,8 +8,8 @@ A Helm chart for babylon-gateway-api on Kubernetes.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| alerts.enabled | bool | `true` | Whether or not to install the alerts using alertmanager |
-| autoscaling.enabled | bool | `true` |  |
+| alerts.enabled | bool | `false` | Whether or not to install the alerts using alertmanager |
+| autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `2` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `70` |  |
@@ -25,7 +25,7 @@ A Helm chart for babylon-gateway-api on Kubernetes.
 | config.network.disableFallbackCertificates | string | `nil` |  |
 | config.network.environment | string | `nil` | Alternative descriptive name of the network to be put into labels |
 | config.network.name | string | `nil` | Name of the network  |
-| config.network.nodes | string | `nil` | List of core nodes to connect to. Use trust_weighting to create a priority list. |
+| config.network.nodes | string | `nil` | List of core nodes to connect to. Use trustWeighting to create a priority list. |
 | config.postgres.command_timeout | string | `nil` |  |
 | config.postgres.connection_lifetime | string | `nil` |  |
 | config.postgres.dbname | string | `nil` | Name of the database to store the babylon-ledger data in. Defaults to using values under global.config |
@@ -43,8 +43,8 @@ A Helm chart for babylon-gateway-api on Kubernetes.
 | global.config.ASPNETCORE_URLS | string | `"http://*:8080"` | The interface the dotnet service listens to. Shared with data_aggregator. Defaults to using values under global.config |
 | global.config.gatewayapi.EnableSwagger | bool | `true` |  |
 | global.config.gatewayapi.MaxPageSize | string | `""` |  |
-| global.config.gatewayapi.PreventConstructionRequestsIfDbLedgerIsBehind | string | `""` |  |
-| global.config.gatewayapi.PreventReadRequestsIfDbLedgerIsBehind | string | `""` |  |
+| global.config.gatewayapi.PreventConstructionRequestsIfDbLedgerIsBehind | bool | `false` |  |
+| global.config.gatewayapi.PreventReadRequestsIfDbLedgerIsBehind | bool | `false` |  |
 | global.config.logging.LogLevel.Default | string | `"Information"` |  |
 | global.config.logging.LogLevel.Microsoft_Hosting_Lifetime | string | `"Information"` |  |
 | global.config.network.disableCoreAPICertificates | bool | `true` | Whether to check the TLS certificates of the network nodes. |
@@ -56,7 +56,7 @@ A Helm chart for babylon-gateway-api on Kubernetes.
 | global.config.network.nodes[0].existingSecret | string | `"babylon-gateway-core1-credentials"` | Credentials to conncet to the core ndoe. The secret must be created seperately before deployment. |
 | global.config.network.nodes[0].existingSecretKey | string | `"base64-encoded-auth"` | Key of secret with the base64 encoded core node credentials. |
 | global.config.network.nodes[0].name | string | `"Core1"` |  |
-| global.config.network.nodes[0].trust_weighting | string | `"1"` | Trust weighting for creating a priority list |
+| global.config.network.nodes[0].trustWeighting | string | `"1"` | Trust weighting for creating a priority list |
 | global.config.postgres.command_timeout | string | `"600"` |  |
 | global.config.postgres.connection_lifetime | string | `"600"` |  |
 | global.config.postgres.dbname | string | `"radixdlt_ledger"` | Name of the database to store the babylon-ledger data in. |

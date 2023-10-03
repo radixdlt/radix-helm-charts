@@ -1,6 +1,6 @@
 # data-aggregator
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.0.0](https://img.shields.io/badge/AppVersion-1.0.0-informational?style=flat-square)
+![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.0.0](https://img.shields.io/badge/AppVersion-v1.0.0-informational?style=flat-square)
 
 A Helm chart for Kubernetes
 
@@ -10,7 +10,7 @@ A Helm chart for Kubernetes
 |-----|------|---------|-------------|
 | affinity.podAffinity | object | `{}` |  |
 | alert_thresholds.HighTimeSinceLastLedgerCommit | int | `30` |  |
-| alerts.enabled | bool | `true` |  |
+| alerts.enabled | bool | `false` |  |
 | autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
@@ -31,11 +31,13 @@ A Helm chart for Kubernetes
 | config.data_aggregator.MempoolConfiguration.StopResubmittingAfterSeconds | string | `nil` |  |
 | config.logging.LogLevel.Default | string | `nil` |  |
 | config.logging.LogLevel.Microsoft_Hosting_Lifetime | string | `nil` |  |
+| config.migrations.enableInitContainer | bool | `true` |  |
+| config.migrations.image.repository | string | `"docker.io/radixdlt/babylon-ng-database-migrations"` |  |
 | config.network.disableCoreAPICertificates | string | `nil` | Whether to check the TLS certificates of the network nodes. |
 | config.network.disableFallbackCertificates | string | `nil` |  |
 | config.network.environment | string | `nil` | Alternative descriptive name of the network to be put into labels |
 | config.network.name | string | `nil` | Name of the network  |
-| config.network.nodes | string | `nil` | List of core nodes to connect to. Use trust_weighting to create a priority list. |
+| config.network.nodes | string | `nil` | List of core nodes to connect to. Use trustWeighting to create a priority list. |
 | config.postgres.command_timeout | string | `nil` |  |
 | config.postgres.connection_lifetime | string | `nil` |  |
 | config.postgres.dbname | string | `nil` | Name of the database to store the babylon-ledger data in. Defaults to using values under global.config |
@@ -48,6 +50,7 @@ A Helm chart for Kubernetes
 | config.postgres.min_pool_size | string | `nil` |  |
 | config.postgres.port | string | `nil` | Port that the postgres instance listens on |
 | config.postgres.read_buffer_size | string | `nil` |  |
+| config.postgres.wipe_database | bool | `false` |  |
 | config.postgres.write_buffer_size | string | `nil` |  |
 | fullnameOverride | string | `""` |  |
 | global.config.ASPNETCORE_URLS | string | `"http://*:8080"` | The interface the dotnet service listens to. Shared with gateway_api. Defaults to using values under global.config |
@@ -74,11 +77,11 @@ A Helm chart for Kubernetes
 | global.config.network.nodes[0].existingSecret | string | `"babylon-gateway-core1-credentials"` | Credentials to conncet to the core ndoe. The secret must be created seperately before deployment. |
 | global.config.network.nodes[0].existingSecretKey | string | `"base64-encoded-auth"` | Key of secret with the base64 encoded core node credentials. |
 | global.config.network.nodes[0].name | string | `"Core1"` |  |
-| global.config.network.nodes[0].trust_weighting | string | `"1"` | Trust weighting for creating a priority list |
+| global.config.network.nodes[0].trustWeighting | string | `"1"` | Trust weighting for creating a priority list |
 | global.config.postgres.command_timeout | string | `"600"` |  |
 | global.config.postgres.connection_lifetime | string | `"600"` |  |
 | global.config.postgres.dbname | string | `"radixdlt_ledger"` | Name of the database to store the babylon-ledger data in. |
-| global.config.postgres.existingSecret | string | `""` | Name of the secret that stores the credentials to connect to postgres. Must be created before deployment. |
+| global.config.postgres.existingSecret | string | `"babylon-gateway-postgres-credentials"` | Name of the secret that stores the credentials to connect to postgres. Must be created before deployment. |
 | global.config.postgres.existingSecretPasswordKey | string | `"password"` | Key in the secret that stores the password to connect to postgres. Must be created before deployment. |
 | global.config.postgres.existingSecretUsernameKey | string | `"username"` | Key in the secret that stores the username to connect to postgres. Must be created before deployment. |
 | global.config.postgres.hostname | string | `"postgres-postgresql"` |  |
@@ -87,9 +90,10 @@ A Helm chart for Kubernetes
 | global.config.postgres.min_pool_size | string | `"10"` |  |
 | global.config.postgres.port | int | `5432` |  |
 | global.config.postgres.read_buffer_size | string | `"32768"` |  |
+| global.config.postgres.wipe_database | bool | `false` |  |
 | global.config.postgres.write_buffer_size | string | `"32768"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"docker.io/radixdlt/ng-babylon-data-aggregator"` |  |
+| image.repository | string | `"docker.io/radixdlt/babylon-ng-data-aggregator"` |  |
 | imagePullSecrets | string | `nil` |  |
 | ingress.annotations | object | `{}` |  |
 | ingress.enabled | bool | `false` |  |
@@ -105,7 +109,6 @@ A Helm chart for Kubernetes
 | metrics.port | int | `1234` |  |
 | metrics.serviceMonitor.enabled | bool | `true` |  |
 | metrics.serviceMonitor.interval | string | `"5s"` |  |
-| migrations.enableInitContainer | bool | `false` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
