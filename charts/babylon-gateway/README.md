@@ -8,9 +8,9 @@ A Helm chart for deploying the babylon-gateway on Kubernetes
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://../data-aggregator | data-aggregator | 1.0.0 |
-| file://../gateway-api | gateway-api | 1.0.0 |
 | https://charts.bitnami.com/bitnami | postgresql | 13.0.0 |
+| https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/index.yaml | data-aggregator | 1.0.0 |
+| https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/index.yaml | gateway-api | 1.0.0 |
 
 ## Values
 
@@ -18,17 +18,17 @@ A Helm chart for deploying the babylon-gateway on Kubernetes
 |-----|------|---------|-------------|
 | data-aggregator.alerts.enabled | bool | `false` |  |
 | data-aggregator.autoscaling.enabled | bool | `false` |  |
-| data-aggregator.config.migrations.enabled | bool | `true` |  |
+| data-aggregator.config.migrations.enabled | bool | `true` | Enable the database migration as an init container |
 | data-aggregator.enabled | bool | `true` | Enable or disable the deployment of the data-aggregator |
 | data-aggregator.ingress.enabled | bool | `false` |  |
 | data-aggregator.metrics.enabled | bool | `false` |  |
-| data-aggregator.replicaCount | string | `nil` |  |
+| data-aggregator.replicaCount | int | `1` | Set the number of replicas for the data-aggregator |
 | gateway-api.alerts.enabled | bool | `false` |  |
 | gateway-api.autoscaling.enabled | bool | `false` |  |
 | gateway-api.enabled | bool | `true` | Enable or disable the deployment of the gateway-api |
 | gateway-api.ingress.enabled | bool | `false` |  |
 | gateway-api.metrics.enabled | bool | `false` |  |
-| gateway-api.replicaCount | int | `0` |  |
+| gateway-api.replicaCount | int | `0` | Set the number of replicas for the gateway-api |
 | global.config.data_aggregator.LedgerConfirmation.MaxCommitBatchSize | int | `1000` |  |
 | global.config.data_aggregator.LedgerConfirmation.MaxTransactionPipelineSizePerNode | int | `3000` |  |
 | global.config.data_aggregator.LedgerConfirmation.OnlyUseSufficientlySyncedUpNodesForQuorumCalculation | bool | `true` |  |

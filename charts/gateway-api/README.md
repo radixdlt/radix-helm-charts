@@ -95,7 +95,7 @@ A Helm chart for babylon-gateway-api on Kubernetes.
 | readinessProbe.initialDelaySeconds | int | `10` |  |
 | readinessProbe.periodSeconds | int | `15` |  |
 | readinessProbe.timeoutSeconds | int | `1` |  |
-| replicaCount | int | `2` |  |
+| replicaCount | int | `1` |  |
 | resources.limits.memory | string | `"750Mi"` |  |
 | resources.requests.cpu | string | `"475m"` |  |
 | resources.requests.memory | string | `"750Mi"` |  |
