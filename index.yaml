@@ -2,17 +2,23 @@ apiVersion: v1
 entries:
   babylon-gateway:
   - apiVersion: v2
-    appVersion: 1.0.0
-    created: "2023-09-29T13:46:17.814208+02:00"
+    appVersion: v1.0.0
+    created: "2023-10-03T21:12:42.429244+02:00"
     dependencies:
-    - name: gateway-api
+    - condition: gateway-api.enabled
+      name: gateway-api
       repository: file://../gateway-api
       version: 1.0.0
-    - name: data-aggregator
+    - condition: data-aggregator.enabled
+      name: data-aggregator
       repository: file://../data-aggregator
       version: 1.0.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 13.0.0
     description: A Helm chart for deploying the babylon-gateway on Kubernetes
-    digest: eb9ee7ded3c9e9b5f8fb4d45b3e337e4d82f2388533e31a0637f8bb1b76714e2
+    digest: 84d1395823ede3db5059d966a982bfe58b340dceefd24a683eb91fe003e0bebb
     name: babylon-gateway
     type: application
     urls:
@@ -20,10 +26,10 @@ entries:
     version: 1.0.0
   data-aggregator:
   - apiVersion: v2
-    appVersion: 1.0.0
-    created: "2023-09-29T13:46:17.814775+02:00"
+    appVersion: v1.0.0
+    created: "2023-10-03T21:12:42.429856+02:00"
     description: A Helm chart for Kubernetes
-    digest: 2129eafa308af954bf44a31440a674f6a274264bf4203840001db566140c3d0d
+    digest: fc627f1c86c1e4a1465078620d2a345fc3fbcead0a59f08911877ea30ce8c671
     name: data-aggregator
     type: application
     urls:
@@ -31,13 +37,13 @@ entries:
     version: 1.0.0
   gateway-api:
   - apiVersion: v2
-    appVersion: 1.0.0
-    created: "2023-09-29T13:46:17.815243+02:00"
-    description: A Helm chart for babylon-gateway-api on Kubernetes
-    digest: b1032949964f9951991aacda6302974dea9857149f55d75b76b8192ed5d44c34
+    appVersion: v1.0.0
+    created: "2023-10-03T21:12:42.430363+02:00"
+    description: A Helm chart for babylon-gateway-api on Kubernetes.
+    digest: f868412e265f8f32ea1bc511ff142dd4896f8f42d692223a9cf53367cdde2381
     name: gateway-api
     type: application
     urls:
     - artifacts/gateway-api-1.0.0.tgz
     version: 1.0.0
-generated: "2023-09-29T13:46:17.812908+02:00"
+generated: "2023-10-03T21:12:42.422831+02:00"
