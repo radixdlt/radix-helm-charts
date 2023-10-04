@@ -1,0 +1,31 @@
+gateway-api:
+  replicaCount: 1
+
+data-aggregator:
+  replicaCount: 1
+
+postgresql:
+  enabled: false
+
+global:
+  config:    
+    postgres:
+      hostname: "postgresql"
+      hostnameRO: "postgresql"
+      dbname: "radixdlt_ledger"
+      existingSecret: "babylon-gateway-postgres-credentials"
+      existingSecretUsernameKey: username
+      existingSecretPasswordKey: password
+
+    network:
+      name: mainnet
+      environment: "mainnet"
+      disableCoreAPICertificates: true
+      disableFallbackCertificates: true
+      nodes:
+        - name: Core1
+          enabled: true
+          address: "https://3.67.27.198/core"
+          trustWeighting: "1"
+          existingSecret: babylon-gateway-core1-credentials
+          existingSecretKey: base64-encoded-auth

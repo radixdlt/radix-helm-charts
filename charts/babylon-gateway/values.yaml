@@ -2,7 +2,7 @@ gateway-api:
   # -- Enable or disable the deployment of the gateway-api
   enabled: true
   # -- Set the number of replicas for the gateway-api
-  replicaCount: 0
+  replicaCount: 1
   autoscaling:
     enabled: false
   ingress:
