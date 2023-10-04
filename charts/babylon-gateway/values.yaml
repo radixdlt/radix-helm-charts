@@ -3,12 +3,16 @@ gateway-api:
   enabled: true
   # -- Set the number of replicas for the gateway-api
   replicaCount: 1
+  # @ignored
   autoscaling:
     enabled: false
+  # @ignored
   ingress:
     enabled: false
+  # @ignored
   metrics:
     enabled: false
+  # @ignored
   alerts:
     enabled: false
 
@@ -17,12 +21,16 @@ data-aggregator:
   replicaCount: 1
   # -- Enable or disable the deployment of the data-aggregator
   enabled: true
+  # @ignored
   autoscaling:
     enabled: false
+  # @ignored
   ingress:
     enabled: false
+  # @ignored
   metrics:
     enabled: false
+  # @ignored
   alerts:
     enabled: false
   config:
@@ -77,14 +85,21 @@ global:
       # -- The key in the secret containing the password
       existingSecretPasswordKey: password
 
+      # @ignored
       min_pool_size: "10"
+      # @ignored
       max_pool_size: "1000"
+      # @ignored
       connection_lifetime: "600"
+      # @ignored
       command_timeout: "600"
+      # @ignored
       read_buffer_size: "32768"
+      # @ignored
       write_buffer_size: "32768"
 
     # Settings specific to the gateway api.
+    # @ignored
     gatewayapi:
       # -- Whether to enable swagger or not
       EnableSwagger: true
@@ -95,6 +110,7 @@ global:
       PreventConstructionRequestsIfDbLedgerIsBehind: false
 
     # Settings specific to the data aggregator.
+    # @ignored
     data_aggregator:
       "MempoolConfiguration":
         "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
@@ -105,6 +121,7 @@ global:
         "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 604800
         "PruneRequiresMissingFromMempoolForSeconds": 60
       
+      # @ignored
       "LedgerConfirmation":
         "QuorumRequiresTrustProportion": 0.51
         "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": true

@@ -2,11 +2,14 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# -- The amount of replicas to deploy
 replicaCount: 1
 
+# @ignored
 alert_thresholds:
   HighTimeSinceLastLedgerCommit: 30
 
+# @ignored
 cluster_name: rdx-works-main-dev
 
 alerts:
@@ -22,6 +25,7 @@ imagePullSecrets:
 nameOverride: ""
 fullnameOverride: ""
 
+# @ignored
 metrics:
   # -- Whether to install/enable the metrics endpoints and collect them using ServiceMonitors
   enabled: false
@@ -31,17 +35,20 @@ metrics:
     interval: 5s
   dashboard_url: https://grafana.com
   
+# @ignored
 readinessProbe:
   initialDelaySeconds: 10
   timeoutSeconds: 1
   failureThreshold: 3
   periodSeconds: 15
+# @ignored
 livenessProbe:
   initialDelaySeconds: 30
   timeoutSeconds: 5
   failureThreshold: 5
   periodSeconds: 10
 
+# @ignored
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
@@ -51,11 +58,14 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# @ignored
 podAnnotations: {}
 
+# @ignored
 podSecurityContext: {}
   # fsGroup: 2000
 
+# @ignored
 securityContext:
   capabilities:
     add:
@@ -63,10 +73,12 @@ securityContext:
   privileged: false
   allowPrivilegeEscalation: false
 
+# @ignored
 service:
   type: ClusterIP
   port: 8080
 
+# @ignored
 ingress:
   enabled: false
   annotations: {}
@@ -87,6 +99,7 @@ resources:
     cpu: 1000m
     memory: 2Gi
 
+
 autoscaling:
   enabled: false
   minReplicas: 1
@@ -94,14 +107,17 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# @ignored
 nodeSelector: {}
 
+# @ignored
 tolerations:
 - key: "networkGatewayInstance"
   operator: "Equal"
   value: "true"
   effect: "PreferNoSchedule"
 
+# @ignored
 affinity:
   podAffinity: {}
 
@@ -112,6 +128,7 @@ global:
     logging:
       LogLevel:
         Default: "Information"
+        # @ignored
         Microsoft_Hosting_Lifetime: "Information"
     postgres:
       hostname: "postgres-postgresql"
@@ -126,17 +143,22 @@ global:
       # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment.
       existingSecretPasswordKey: password
 
+      # @ignored
       min_pool_size: "10"
+      # @ignored
       max_pool_size: "1000"
+      # @ignored
       connection_lifetime: "600"
+      # @ignored
       command_timeout: "600"
+      # @ignored
       read_buffer_size: "32768"
+      # @ignored
       write_buffer_size: "32768"
+      # @ignored
       wipe_database: false
 
-        # tag: 
-  # Overrides the image tag whose default is the chart appVersion.
-  # tag: ""
+    # @ignored
     data_aggregator:
       "MempoolConfiguration":
         "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
@@ -175,6 +197,7 @@ global:
           # -- Key of secret with the base64 encoded core node credentials.
           existingSecretKey: base64-encoded-auth
 
+# @ignored
 config:
   # -- The interface the dotnet service listens to. Shared with gateway_api. Defaults to using values under global.config
   ASPNETCORE_URLS: 

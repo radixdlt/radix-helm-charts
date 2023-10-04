@@ -4,9 +4,10 @@
 
 replicaCount: 1
 
+# @ignored
 cluster_name: babylon-gateway-cluster
-# -- Used to label resources
 
+# @ignored
 alerts:
   # -- Whether or not to install the alerts using alertmanager
   enabled: false
@@ -21,15 +22,18 @@ image:
 # -- Secrets to access the image registry with
 imagePullSecrets:
 
-
+# @ignored
 nameOverride: ""
+# @ignored
 fullnameOverride: ""
 
+# @ignored
 readinessProbe:
   initialDelaySeconds: 10
   timeoutSeconds: 1
   failureThreshold: 3
   periodSeconds: 15
+# @ignored
 livenessProbe:
   initialDelaySeconds: 30
   timeoutSeconds: 5
@@ -47,6 +51,7 @@ metrics:
   # -- Url to a default dashboard for the babylon-gateway to be linked in the alerts
   dashboard_url: https://grafana.com
 
+# @ignored
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
@@ -56,11 +61,14 @@ serviceAccount:
   # -- If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# @ignored
 podAnnotations: {}
 
+# @ignored
 podSecurityContext: {}
   # -- fsGroup: 2000
 
+# @ignored
 securityContext:
   capabilities:
     add:
@@ -68,10 +76,12 @@ securityContext:
   privileged: false
   allowPrivilegeEscalation: false
 
+# @ignored
 service:
   type: ClusterIP
   port: 8080
 
+# @ignored
 ingress:
   enabled: true
   className: nginx
@@ -94,8 +104,10 @@ autoscaling:
   targetCPUUtilizationPercentage: 70
   # -- targetMemoryUtilizationPercentage: 80
 
+# @ignored
 nodeSelector: {}
 
+# @ignored
 tolerations:
 - key: "networkGatewayInstance"
   operator: "Equal"
@@ -157,6 +169,7 @@ global:
           # -- Key of secret with the base64 encoded core node credentials.
           existingSecretKey: base64-encoded-auth
 
+# @ignored
 config:
   # -- The interface the dotnet service listens to. Shared with data_aggregator. Defaults to using values under global.config
   ASPNETCORE_URLS: 
