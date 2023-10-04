@@ -28,7 +28,7 @@ A Helm chart for deploying the babylon-gateway on Kubernetes
 | gateway-api.enabled | bool | `true` | Enable or disable the deployment of the gateway-api |
 | gateway-api.ingress.enabled | bool | `false` |  |
 | gateway-api.metrics.enabled | bool | `false` |  |
-| gateway-api.replicaCount | int | `0` | Set the number of replicas for the gateway-api |
+| gateway-api.replicaCount | int | `1` | Set the number of replicas for the gateway-api |
 | global.config.data_aggregator.LedgerConfirmation.MaxCommitBatchSize | int | `1000` |  |
 | global.config.data_aggregator.LedgerConfirmation.MaxTransactionPipelineSizePerNode | int | `3000` |  |
 | global.config.data_aggregator.LedgerConfirmation.OnlyUseSufficientlySyncedUpNodesForQuorumCalculation | bool | `true` |  |

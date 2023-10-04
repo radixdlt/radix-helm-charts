@@ -96,9 +96,9 @@ A Helm chart for babylon-gateway-api on Kubernetes.
 | readinessProbe.periodSeconds | int | `15` |  |
 | readinessProbe.timeoutSeconds | int | `1` |  |
 | replicaCount | int | `1` |  |
-| resources.limits.memory | string | `"750Mi"` |  |
-| resources.requests.cpu | string | `"475m"` |  |
-| resources.requests.memory | string | `"750Mi"` |  |
+| resources.limits.memory | string | `"2Gi"` |  |
+| resources.requests.cpu | string | `"1500m"` |  |
+| resources.requests.memory | string | `"2Gi"` |  |
 | securityContext.allowPrivilegeEscalation | bool | `false` |  |
 | securityContext.capabilities.add[0] | string | `"NET_ADMIN"` |  |
 | securityContext.privileged | bool | `false` |  |
