@@ -35,10 +35,14 @@ Please be aware that this chart will not be updated on every release of the baby
 
 ### Creating mandatory secrets before deployment
 ```
-kubectl create secret generic  babylon-gateway-postgres-credentials --from-literal=u
+$ kubectl create secret generic  babylon-gateway-postgres-credentials --from-literal=u
 sername=postgres --from-literal=password=postgres
 
-kubectl create secret generic  babylon-gateway-core1-credentials --from-literal=base64-encoded-auth=klFVKSUYFSD
+# Example on how to store the credentials for user `radix` and with password `password` in the secret.
+$ echo "radix:password" | base64 
+cmFkaXg6cGFzc3dvcmQ=
+
+$ kubectl create secret generic  babylon-gateway-core1-credentials --from-literal=base64-encoded-auth="Basic cmFkaXg6cGFzc3dvcmQ="
 ```
 
 ### Helmfile
