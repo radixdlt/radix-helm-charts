@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "data-aggregator.fullname" . }}-appsettings
+data:
+  appsettings.ProductionOverrides.json: |
+    {
+        "Logging": {
+            "LogLevel": {
+                "Default": "{{ .Values.config.logging.LogLevel.Default | default .Values.global.config.logging.LogLevel.Default }}",
+                "Microsoft.Hosting.Lifetime": "{{ .Values.config.logging.LogLevel.Microsoft_Hosting_Lifetime | default .Values.global.config.logging.LogLevel.Microsoft_Hosting_Lifetime }}"
+            }
+        },
+        "DataAggregator": {
+            "Mempool": {
+                "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": {{.Values.config.MempoolConfiguration.MinDelayBetweenMissingFromMempoolAndResubmissionSeconds }},
+                "MinDelayBetweenResubmissionsSeconds":  {{.Values.config.MempoolConfiguration.MinDelayBetweenResubmissionsSeconds }},
+                "StopResubmittingAfterSeconds": {{.Values.config.MempoolConfiguration.MinDelayBetweenResubmissionsSeconds }},
+                "PruneCommittedAfterSeconds": {{.Values.config.MempoolConfiguration.PruneCommittedAfterSeconds }},
+                "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": {{.Values.config.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds }},
+                "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": {{.Values.config.MempoolConfiguration.PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds }},
+                "PruneRequiresMissingFromMempoolForSeconds": {{.Values.config.MempoolConfiguration.PruneRequiresMissingFromMempoolForSeconds }}
+            },
+            "LedgerConfirmation": {
+                "QuorumRequiresTrustProportion": {{.Values.config.LedgerConfirmation.QuorumRequiresTrustProportion }},
+                "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": {{.Values.config.LedgerConfirmation.OnlyUseSufficientlySyncedUpNodesForQuorumCalculation }},
+                "SufficientlySyncedStateVersionThreshold": {{.Values.config.LedgerConfirmation.SufficientlySyncedStateVersionThreshold }},
+                "MaxCommitBatchSize": {{.Values.config.LedgerConfirmation.MaxCommitBatchSize }},
+                "MaxTransactionPipelineSizePerNode": {{.Values.config.LedgerConfirmation.MaxTransactionPipelineSizePerNode }}
+            },
+            "Network": {
+                "NetworkName": "{{.Values.config.network.name | default .Values.global.config.network.name}}",
+                "DisableCoreApiHttpsCertificateChecks": {{.Values.config.network.disableCoreAPICertificates | default .Values.global.config.network.disableCoreAPICertificates }},
+                "CoreApiNodes": [
+                    {{- $nodes := .Values.config.network.DataAggregatorNodes }}
+                    {{- range $node := $nodes  }}
+                        {
+                            "Name": "{{ $node.name }}",
+                            "CoreApiAddress": "{{ $node.address }}",
+                            "Enabled": "{{ $node.enabled }}",
+                            "TrustWeighting": "{{ $node.trustWeighting }}"
+                        },
+                    {{- end}}
+                ]
+            },
+            "Monitoring": {
+                "UnhealthyCommitmentGapSeconds": 720
+            }
+        }
+    }

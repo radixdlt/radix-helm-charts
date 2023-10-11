@@ -1,0 +1,151 @@
+gateway-api:
+  # -- Enable or disable the deployment of the gateway-api
+  enabled: true
+  # -- Set the number of replicas for the gateway-api
+  replicaCount: 1
+  # @ignored
+  autoscaling:
+    enabled: false
+  # @ignored
+  ingress:
+    enabled: false
+  # @ignored
+  metrics:
+    enabled: false
+  # @ignored
+  alerts:
+    enabled: false
+  
+  config:
+    # Settings specific to the gateway api.
+    # @ignored
+    gatewayapi:
+      # -- Whether to enable swagger or not
+      EnableSwagger: true
+      MaxPageSize: ""
+      # -- Configure behaviour of the gatewayapi depending on Ledger lag
+      PreventReadRequestsIfDbLedgerIsBehind: false
+      # -- Configure behaviour of the gatewayapi depending on Ledger lag
+      PreventConstructionRequestsIfDbLedgerIsBehind: false
+
+data-aggregator:
+  # -- Set the number of replicas for the data-aggregator
+  replicaCount: 1
+  # -- Enable or disable the deployment of the data-aggregator
+  enabled: true
+  # @ignored
+  autoscaling:
+    enabled: false
+  # @ignored
+  ingress:
+    enabled: false
+  # @ignored
+  metrics:
+    enabled: false
+  # @ignored
+  alerts:
+    enabled: false
+  config:
+    migrations:
+      # -- Enable the database migration as an init container
+      enabled: true
+    # Settings specific to the data aggregator.
+    # @ignored
+    "MempoolConfiguration":
+      "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
+      "MinDelayBetweenResubmissionsSeconds": 10
+      "StopResubmittingAfterSeconds": 300
+      "PruneCommittedAfterSeconds": "31556952" # one calendar year. This is quoted because it's expected to be passed as a String
+      "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": 604800
+      "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 604800
+      "PruneRequiresMissingFromMempoolForSeconds": 60
+    
+    # @ignored
+    "LedgerConfirmation":
+      "QuorumRequiresTrustProportion": 0.51
+      "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": true
+      "SufficientlySyncedStateVersionThreshold": 1000
+      "MaxCommitBatchSize": 1000
+      "MaxTransactionPipelineSizePerNode": 3000
+
+# These are the Postgres database helm values. See bitnami/postgresql for more infomation on how to configure this.
+postgresql:
+  # -- Enable or disable the deployment of the postgresql database. See the postgres chart for more information.
+  enabled: false
+  primary:
+    persistence:
+      enabled: true
+      size: 200Gi
+  auth:
+    # -- The name of the postgres user
+    username: postgres
+    # -- The name of database to store the babylon-ledger in
+    database: radixdlt_ledger
+    # -- The name of the preexisting kubernetes secret containing the credentials for the postgres user
+    existingSecret: "babylon-gateway-postgres-credentials"
+    secretKeys:
+      # -- The key in the secret that holds the admin users password
+      adminPasswordKey: postgres-password
+      # -- The key in the secret that holds the default users password
+      userPasswordKey: password
+      # -- The key in the secret that holds the replicaton users password
+      replicationPasswordKey: replication-password
+
+
+# The settings below can be overwritten for each individual service. 
+global:
+  config:
+    # Application configuration shared by data aggregator and gateway api related to logging.
+    logging:
+      LogLevel:
+        Default: "Information"
+        Microsoft_Hosting_Lifetime: "Information"
+    
+    # These are the global database settings for the data-aggregator and the gateway-api.
+    postgres:
+      # -- The name of database to connect to. Set this to your postgres service name if you deploy postgres with the same chart
+      hostname: "postgresql"
+      hostnameRO: "postgresql"
+      # -- The port of database to connect to.
+      port: 5432
+      # -- The name of database to store the babylon-ledger in.
+      dbname: "radixdlt_ledger"
+      # -- The already existing secret containing the postgres credentials for the babylon-gateway applications
+      existingSecret: "babylon-gateway-postgres-credentials"
+      # -- The key in the secret containing the username
+      existingSecretUsernameKey: username
+      # -- The key in the secret containing the password
+      existingSecretPasswordKey: password
+
+      # @ignored
+      min_pool_size: "10"
+      # @ignored
+      max_pool_size: "1000"
+      # @ignored
+      connection_lifetime: "600"
+      # @ignored
+      command_timeout: "600"
+      # @ignored
+      read_buffer_size: "32768"
+      # @ignored
+      write_buffer_size: "32768"
+
+    # Application configuration shared by data aggregator and gateway api related to networking.
+    network:
+      # -- Name of the network to connect to
+      name: mainnet
+      # Value to label resources according to the network used
+      environment: "mainnet"
+      disableCoreAPICertificates: true
+      disableFallbackCertificates: true
+      nodes:
+        # Unique name of the node. 
+        - name: Core1
+          enabled: true
+          # -- URL of the core node both gateway-api and data-aggregator are connecting to
+          address: "https://somehost/core"
+          trustWeighting: "1"
+          # -- The already existing secret containing the core ndoe credentials for the babylon-gateway applications
+          existingSecret: babylon-gateway-core1-credentials
+          # -- The key in the secret conaining a base64 encoded credential set.
+          existingSecretKey: base64-encoded-auth

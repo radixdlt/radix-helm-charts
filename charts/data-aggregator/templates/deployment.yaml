@@ -1,0 +1,180 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "data-aggregator.fullname" . }}
+  labels:
+    {{- include "data-aggregator.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  strategy:
+    type: Recreate # Currently only one instance of data-aggregator is allowed to run.
+  selector:
+    matchLabels:
+      {{- include "data-aggregator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/appsettings-configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "data-aggregator.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "data-aggregator.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.config.migrations.enableInitContainer }}      
+      initContainers:
+        - name: db-migrations
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.config.migrations.image.repository }}:{{ .Values.config.migrations.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: ASPNETCORE_URLS
+              value: "{{ .Values.config.ASPNETCORE_URLS | default .Values.global.config.ASPNETCORE_URLS }}"
+            - name: POSTGRES_HOSTNAME
+              value: "{{ .Values.config.postgres.hostname | default .Values.global.config.postgres.hostname }}"
+            - name: POSTGRES_PORT
+              value: "{{ .Values.config.postgres.port | default .Values.global.config.postgres.port}}"
+            - name: POSTGRES_DB_NAME
+              value: "{{ .Values.config.postgres.dbname | default .Values.global.config.postgres.dbname}}"
+            - name: WIPE_DATABASE
+              value: "{{.Values.config.postgres.wipe_database| default .Values.global.config.postgres.wipe_database}}"
+            - name: POSTGRES_MIN_POOL_SIZE
+              value: {{ .Values.config.postgres.min_pool_size | default .Values.global.config.postgres.min_pool_size | quote }}
+            - name: POSTGRES_MAX_POOL_SIZE
+              value: {{ .Values.config.postgres.max_pool_size | default .Values.global.config.postgres.max_pool_size | quote }}
+            - name: POSTGRES_CONNECTION_LIFETIME
+              value: {{ .Values.config.postgres.connection_lifetime | default .Values.global.config.postgres.connection_lifetime | quote }}
+            - name: POSTGRES_COMMAND_TIMEOUT
+              value: {{ .Values.config.postgres.command_timeout | default .Values.global.config.postgres.command_timeout | quote }}
+            - name: POSTGRES_READ_BUFFER_SIZE
+              value: {{ .Values.config.postgres.read_buffer_size | default .Values.global.config.postgres.read_buffer_size | quote }}
+            - name: POSTGRES_WRITE_BUFFER_SIZE
+              value: {{ .Values.config.postgres.write_buffer_size | default .Values.global.config.postgres.write_buffer_size | quote }}
+            - name: POSTGRES_SUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretUsernameKey | quote }}
+            - name: POSTGRES_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretPasswordKey | quote }}
+            - name: ConnectionStrings__NetworkGatewayMigrations
+              value: Host=$(POSTGRES_HOSTNAME):$(POSTGRES_PORT);Database=$(POSTGRES_DB_NAME);Username=$(POSTGRES_SUPERUSER);Password=$(POSTGRES_SUPERUSER_PASSWORD);Minimum Pool Size=$(POSTGRES_MIN_POOL_SIZE);Maximum Pool Size=$(POSTGRES_MAX_POOL_SIZE);Connection Lifetime=$(POSTGRES_CONNECTION_LIFETIME);Command Timeout=$(POSTGRES_COMMAND_TIMEOUT);Read Buffer Size=$(POSTGRES_READ_BUFFER_SIZE);Write Buffer Size=$(POSTGRES_WRITE_BUFFER_SIZE);Include Error Detail=true
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: ASPNETCORE_URLS
+              value: "{{ .Values.config.ASPNETCORE_URLS | default .Values.global.config.ASPNETCORE_URLS }}"
+            - name: PrometheusMetricsPort
+              value: "{{ .Values.metrics.port }}" 
+            - name: DataAggregator__Network__NetworkName
+              value: {{ .Values.config.network.name | default .Values.global.config.network.name }}
+            - name: DataAggregator__Network__DisableCoreApiHttpsCertificateChecks
+              value: "true"
+            {{ $i := 0 | int}}
+            {{- range $node := $.Values.config.network.nodes | default $.Values.global.config.network.nodes }}          
+            - name: DataAggregator__Network__CoreApiNodes__{{ $i }}__Name
+              value:  {{ $node.name}}
+            - name: DataAggregator__Network__CoreApiNodes__{{ $i }}__CoreApiAddress
+              value:  {{ $node.address}}
+            - name: DataAggregator__Network__CoreApiNodes__{{ $i }}__TrustWeighting
+              value: "{{ $node.trustWeighting}}"
+            - name: DataAggregator__Network__CoreApiNodes__{{ $i }}__CoreApiAuthorizationHeader
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $node.existingSecret }}
+                  key: {{ $node.existingSecretKey }}
+            {{ $i = add1 $i }}
+            {{- end }}
+            - name: POSTGRES_HOSTNAME
+              value: "{{ .Values.config.postgres.hostname | default .Values.global.config.postgres.hostname }}"
+            - name: POSTGRES_PORT
+              value: "{{ .Values.config.postgres.port | default .Values.global.config.postgres.port}}"
+            - name: POSTGRES_DB_NAME
+              value: "{{ .Values.config.postgres.dbname | default .Values.global.config.postgres.dbname}}"
+            - name: POSTGRES_MIN_POOL_SIZE
+              value: {{ .Values.config.postgres.min_pool_size | default .Values.global.config.postgres.min_pool_size | quote }}
+            - name: POSTGRES_MAX_POOL_SIZE
+              value: {{ .Values.config.postgres.max_pool_size | default .Values.global.config.postgres.max_pool_size | quote }}
+            - name: POSTGRES_CONNECTION_LIFETIME
+              value: {{ .Values.config.postgres.connection_lifetime | default .Values.global.config.postgres.connection_lifetime | quote }}
+            - name: POSTGRES_COMMAND_TIMEOUT
+              value: {{ .Values.config.postgres.command_timeout | default .Values.global.config.postgres.command_timeout | quote }}
+            - name: POSTGRES_READ_BUFFER_SIZE
+              value: {{ .Values.config.postgres.read_buffer_size | default .Values.global.config.postgres.read_buffer_size | quote }}
+            - name: POSTGRES_WRITE_BUFFER_SIZE
+              value: {{ .Values.config.postgres.write_buffer_size | default .Values.global.config.postgres.write_buffer_size | quote }}
+            - name: POSTGRES_SUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretUsernameKey | quote }}
+            - name: POSTGRES_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretPasswordKey | quote }}
+            - name: ConnectionStrings__NetworkGatewayReadWrite
+              value: Host=$(POSTGRES_HOSTNAME):$(POSTGRES_PORT);Database=$(POSTGRES_DB_NAME);Username=$(POSTGRES_SUPERUSER);Password=$(POSTGRES_SUPERUSER_PASSWORD);Minimum Pool Size=$(POSTGRES_MIN_POOL_SIZE);Maximum Pool Size=$(POSTGRES_MAX_POOL_SIZE);Connection Lifetime=$(POSTGRES_CONNECTION_LIFETIME);Command Timeout=$(POSTGRES_COMMAND_TIMEOUT);Read Buffer Size=$(POSTGRES_READ_BUFFER_SIZE);Write Buffer Size=$(POSTGRES_WRITE_BUFFER_SIZE);Include Error Detail=true
+          ports:
+          - name: http
+            containerPort: 8080
+            protocol: TCP
+          - name: metrics
+            containerPort: {{ .Values.metrics.port }} 
+            protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/app/appsettings.ProductionOverrides.json"
+              subPath: "appsettings.ProductionOverrides.json"
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "data-aggregator.fullname" . }}-appsettings
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

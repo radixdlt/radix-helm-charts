@@ -1,0 +1,161 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "gateway-api.fullname" . }}
+  labels:
+    {{- include "gateway-api.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "gateway-api.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/appsettings-configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "gateway-api.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "gateway-api.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            {{- include "gateway-api.selectorLabels" . | nindent 12 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: ASPNETCORE_URLS
+              value: "{{ .Values.config.ASPNETCORE_URLS | default .Values.global.config.ASPNETCORE_URLS }}"
+            - name: PrometheusMetricsPort
+              value: "{{ .Values.metrics.port }}"
+            - name: EnableSwagger
+              value: "{{ .Values.config.EnableSwagger }}"
+            - name: GatewayApi__Network__DisableCoreApiHttpsCertificateChecks
+              value: "{{ .Values.config.network.disableCoreAPICertificates | default .Values.global.config.network.disableCoreAPICertificates }}"
+            - name: GatewayApi__Network__DisableFallbackGatewayApiHttpsCertificateChecks
+              value: "{{ .Values.config.network.disableFallbackCertificates | default .Values.global.config.network.disableFallbackCertificates }}"
+            {{ $i := 0 | int}}
+            {{- range $node := $.Values.config.network.nodes | default $.Values.global.config.network.nodes }}          
+            {{ if $node.enabled }}
+            - name: GatewayApi__Network__CoreApiNodes__{{ $i }}__Name
+              value:  {{ $node.name}}
+            - name: GatewayApi__Network__CoreApiNodes__{{ $i }}__CoreApiAddress
+              value:  {{ $node.address}}
+            - name: GatewayApi__Network__CoreApiNodes__{{ $i }}__TrustWeighting
+              value: "{{ $node.trustWeighting}}"
+            - name: GatewayApi__Network__CoreApiNodes__{{ $i }}__CoreApiAuthorizationHeader
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $node.existingSecret }}
+                  key: {{ $node.existingSecretKey }}
+            {{ $i = add1 $i }}
+            {{ end }}
+            {{- end }}
+
+            - name: POSTGRES_HOSTNAME
+              value: "{{ .Values.config.postgres.hostname | default .Values.global.config.postgres.hostname }}"
+            - name: POSTGRES_HOSTNAME_RO
+              value: "{{ .Values.config.postgres.hostname | default .Values.global.config.postgres.hostnameRO }}"
+            - name: POSTGRES_PORT
+              value: "{{ .Values.config.postgres.port | default .Values.global.config.postgres.port }}"
+            - name: POSTGRES_DB_NAME
+              value: {{ .Values.config.postgres.dbname | default .Values.global.config.postgres.dbname }}
+            - name: POSTGRES_MIN_POOL_SIZE
+              value: {{ .Values.config.postgres.min_pool_size | default .Values.global.config.postgres.min_pool_size | quote }}
+            - name: POSTGRES_MAX_POOL_SIZE
+              value: {{ .Values.config.postgres.max_pool_size | default .Values.global.config.postgres.max_pool_size | quote }}
+            - name: POSTGRES_CONNECTION_LIFETIME
+              value: {{ .Values.config.postgres.connection_lifetime | default .Values.global.config.postgres.connection_lifetime | quote }}
+            - name: POSTGRES_COMMAND_TIMEOUT
+              value: {{ .Values.config.postgres.command_timeout | default .Values.global.config.postgres.command_timeout | quote }}
+            - name: POSTGRES_READ_BUFFER_SIZE
+              value: {{ .Values.config.postgres.read_buffer_size | default .Values.global.config.postgres.read_buffer_size | quote }}
+            - name: POSTGRES_WRITE_BUFFER_SIZE
+              value: {{ .Values.config.postgres.write_buffer_size | default .Values.global.config.postgres.write_buffer_size | quote }}
+            - name: POSTGRES_SUPERUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretUsernameKey | quote }}
+            - name: POSTGRES_SUPERUSER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecret | quote }}
+                  key: {{ .Values.config.postgres.existingSecret | default .Values.global.config.postgres.existingSecretPasswordKey | quote }}
+            - name: ConnectionStrings__NetworkGatewayReadOnly
+              value: Host=$(POSTGRES_HOSTNAME_RO):$(POSTGRES_PORT);Database=$(POSTGRES_DB_NAME);Username=$(POSTGRES_SUPERUSER);Password=$(POSTGRES_SUPERUSER_PASSWORD);Minimum Pool Size=$(POSTGRES_MIN_POOL_SIZE);Maximum Pool Size=$(POSTGRES_MAX_POOL_SIZE);Connection Lifetime=$(POSTGRES_CONNECTION_LIFETIME);Command Timeout=$(POSTGRES_COMMAND_TIMEOUT);Read Buffer Size=$(POSTGRES_READ_BUFFER_SIZE);Write Buffer Size=$(POSTGRES_WRITE_BUFFER_SIZE);Include Error Detail=true
+            - name: ConnectionStrings__NetworkGatewayReadWrite
+              value: Host=$(POSTGRES_HOSTNAME):$(POSTGRES_PORT);Database=$(POSTGRES_DB_NAME);Username=$(POSTGRES_SUPERUSER);Password=$(POSTGRES_SUPERUSER_PASSWORD);Minimum Pool Size=$(POSTGRES_MIN_POOL_SIZE);Maximum Pool Size=$(POSTGRES_MAX_POOL_SIZE);Connection Lifetime=$(POSTGRES_CONNECTION_LIFETIME);Command Timeout=$(POSTGRES_COMMAND_TIMEOUT);Read Buffer Size=$(POSTGRES_READ_BUFFER_SIZE);Write Buffer Size=$(POSTGRES_WRITE_BUFFER_SIZE);Include Error Detail=true
+            - name: GatewayApi__Endpoint__GatewayApiVersion
+              value: "{{ .Values.image.tag | default .Chart.AppVersion   }}"
+            - name: GatewayApi__Endpoint_MaxPageSize
+              value: "{{ .Values.config.MaxPageSize }}"
+            - name: GatewayApi__AcceptableLedgerLag__PreventReadRequestsIfDbLedgerIsBehind
+              value: "{{ .Values.config.PreventReadRequestsIfDbLedgerIsBehind }}"
+            - name: GatewayApi__AcceptableLedgerLag__PreventConstructionRequestsIfDbLedgerIsBehind
+              value: "{{ .Values.config.PreventConstructionRequestsIfDbLedgerIsBehind }}"
+            - name: GatewayApi__Network__NetworkName
+              value: {{ .Values.config.network.name | default .Values.global.config.network.name }}      
+          volumeMounts:
+            - name: config-volume
+              mountPath: "/app/appsettings.ProductionOverrides.json"
+              subPath: "appsettings.ProductionOverrides.json"
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "gateway-api.fullname" . }}-appsettings
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

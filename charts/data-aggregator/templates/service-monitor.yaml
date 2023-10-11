@@ -1,0 +1,16 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "data-aggregator.fullname" . }}-service-monitor
+  labels:
+    release: prometheus-operator
+spec:
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: {{ .Values.metrics.serviceMonitor.interval }}
+  selector:
+    matchLabels:
+      {{- include "data-aggregator.selectorLabels" . | nindent 6 }}
+{{- end }}

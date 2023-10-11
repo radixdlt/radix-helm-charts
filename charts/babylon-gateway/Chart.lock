@@ -1,0 +1,12 @@
+dependencies:
+- name: gateway-api
+  repository: file://../gateway-api
+  version: 1.0.0
+- name: data-aggregator
+  repository: file://../data-aggregator
+  version: 1.0.0
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 13.0.0
+digest: sha256:395275e60acd9aed46ef786800d8e8f0ef320c4051d2e3859914831bfdaa4ec9
+generated: "2023-09-29T15:01:47.108359+02:00"

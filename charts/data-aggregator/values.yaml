@@ -1,0 +1,271 @@
+# Default values for data-aggregator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- The amount of replicas to deploy
+replicaCount: 1
+
+# @ignored
+alert_thresholds:
+  HighTimeSinceLastLedgerCommit: 30
+
+# @ignored
+cluster_name: babylon-gateway-cluster
+
+alerts:
+  enabled: false
+
+image:
+  repository: docker.io/radixdlt/babylon-ng-data-aggregator
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  # tag: ""
+
+imagePullSecrets:
+nameOverride: ""
+fullnameOverride: ""
+
+# @ignored
+metrics:
+  # -- Whether to install/enable the metrics endpoints and collect them using ServiceMonitors
+  enabled: false
+  port: 1234
+  serviceMonitor:
+    enabled: true
+    interval: 5s
+  dashboard_url: https://grafana.com
+  
+# @ignored
+readinessProbe:
+  initialDelaySeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+  periodSeconds: 15
+# @ignored
+livenessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 5
+  periodSeconds: 10
+
+# @ignored
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# @ignored
+podAnnotations: {}
+
+# @ignored
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# @ignored
+securityContext:
+  capabilities:
+    add:
+    - NET_ADMIN
+  privileged: false
+  allowPrivilegeEscalation: false
+
+# @ignored
+service:
+  type: ClusterIP
+  port: 8080
+
+# @ignored
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths: []
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  limits:
+    memory: 2Gi
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# @ignored
+nodeSelector: {}
+
+# @ignored
+tolerations:
+- key: "networkGatewayInstance"
+  operator: "Equal"
+  value: "true"
+  effect: "PreferNoSchedule"
+
+# @ignored
+affinity:
+  podAffinity: {}
+
+global:
+  config:
+    # -- The interface the dotnet service listens to. Shared with gateway_api. Defaults to using values under global.config
+    ASPNETCORE_URLS: "http://*:8080"
+    logging:
+      LogLevel:
+        Default: "Information"
+        # @ignored
+        Microsoft_Hosting_Lifetime: "Information"
+    postgres:
+      hostname: "postgres-postgresql"
+      hostnameRO: "postgres-postgresql"
+      port: 5432
+      # -- Name of the database to store the babylon-ledger data in.
+      dbname: "radixdlt_ledger"
+      # -- Name of the secret that stores the credentials to connect to postgres. Must be created before deployment.
+      existingSecret: "babylon-gateway-postgres-credentials"
+      # -- Key in the secret that stores the username to connect to postgres. Must be created before deployment.
+      existingSecretUsernameKey: username
+      # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment.
+      existingSecretPasswordKey: password
+
+      # @ignored
+      min_pool_size: "10"
+      # @ignored
+      max_pool_size: "1000"
+      # @ignored
+      connection_lifetime: "600"
+      # @ignored
+      command_timeout: "600"
+      # @ignored
+      read_buffer_size: "32768"
+      # @ignored
+      write_buffer_size: "32768"
+      # @ignored
+      wipe_database: false
+
+    # @ignored
+    data_aggregator:
+      "MempoolConfiguration":
+        "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 10
+        "MinDelayBetweenResubmissionsSeconds": 10
+        "StopResubmittingAfterSeconds": 300
+        "PruneCommittedAfterSeconds": "31556952" # one calendar year. This is quoted because it's expected to be passed as a String
+        "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": 604800
+        "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 604800
+        "PruneRequiresMissingFromMempoolForSeconds": 60
+    
+      "LedgerConfirmation":
+        "QuorumRequiresTrustProportion": 0.51
+        "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": true
+        "SufficientlySyncedStateVersionThreshold": 1000
+        "MaxCommitBatchSize": 1000
+        "MaxTransactionPipelineSizePerNode": 3000
+
+    network:
+      # -- Name of the network 
+      name: mainnet
+      # -- Alternative descriptive name of the network to be put into labels
+      environment: "mainnet"
+      # -- Whether to check the TLS certificates of the network nodes.
+      disableCoreAPICertificates: true
+      disableFallbackCertificates: true
+      nodes:
+        - name: Core1
+          # -- Whether to enable this node
+          enabled: true
+          # -- URL of the core node. Must include the path /core to reach the right API endpoints
+          address: "https://somehost/core"
+          # -- Trust weighting for creating a priority list
+          trustWeighting: "1"
+          # -- Credentials to conncet to the core ndoe. The secret must be created seperately before deployment.
+          existingSecret: babylon-gateway-core1-credentials
+          # -- Key of secret with the base64 encoded core node credentials.
+          existingSecretKey: base64-encoded-auth
+
+# @ignored
+config:
+  migrations:
+    enableInitContainer: true
+    image:
+      repository: docker.io/radixdlt/babylon-ng-database-migrations
+      # tag:
+
+  "MempoolConfiguration":
+      "MinDelayBetweenMissingFromMempoolAndResubmissionSeconds": 
+      "MinDelayBetweenResubmissionsSeconds": 
+      "StopResubmittingAfterSeconds": 
+      "PruneCommittedAfterSeconds": 
+      "PruneMissingTransactionsAfterTimeSinceLastGatewaySubmissionSeconds": 
+      "PruneMissingTransactionsAfterTimeSinceFirstSeenSeconds": 
+      "PruneRequiresMissingFromMempoolForSeconds": 
+    
+  "LedgerConfirmation":
+    "QuorumRequiresTrustProportion": 
+    "OnlyUseSufficientlySyncedUpNodesForQuorumCalculation": 
+    "SufficientlySyncedStateVersionThreshold": 
+    "MaxCommitBatchSize": 
+    "MaxTransactionPipelineSizePerNode": 
+
+  # -- The interface the dotnet service listens to. Shared with gateway_api. Defaults to using values under global.config
+  ASPNETCORE_URLS: 
+  logging:
+    LogLevel:
+      Default:
+      Microsoft_Hosting_Lifetime:
+
+  postgres:
+    # -- Hostname of the postgres instance
+    hostname: 
+    # -- Hostname of Read Only postgres instance
+    hostnameRO: 
+    # -- Port that the postgres instance listens on
+    port: 
+    # -- Name of the database to store the babylon-ledger data in. Defaults to using values under global.config
+    dbname: 
+    # -- Name of the secret that stores the credentials to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecret: 
+    # -- Key in the secret that stores the username to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecretUsernameKey: 
+    # -- Key in the secret that stores the password to connect to postgres. Must be created before deployment. Defaults to using values under global.config
+    existingSecretPasswordKey: 
+    min_pool_size: 
+    max_pool_size: 
+    connection_lifetime: 
+    command_timeout: 
+    read_buffer_size: 
+    write_buffer_size: 
+    wipe_database: false
+
+  network:
+    # -- Name of the network 
+    name: 
+    # -- Alternative descriptive name of the network to be put into labels
+    environment:
+    # -- Whether to check the TLS certificates of the network nodes.
+    disableCoreAPICertificates: 
+    disableFallbackCertificates: 
+    # -- List of core nodes to connect to. Use trustWeighting to create a priority list.
+    nodes:
+      # -- Unique name of the node. 
+      # -- - name: Core1
+      # --   enabled: true
+      # --   address: "https://somehost/core"
+      # --   trustWeighting: "1"
+      # --   # -- Use an already existing secret to get the credentials from
+      # --   existingSecret: babylon-gateway-core1-credentials
+      # --   existingSecretKey: base64-encoded-auth

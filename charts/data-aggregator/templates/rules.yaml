@@ -1,0 +1,285 @@
+{{- if .Values.alerts.enabled -}}
+
+{{- $ns := printf "ng-%s" .Values.config.network.name | default .Values.global.config.network.name -}}
+{{- $network := .Values.config.network.name | default .Values.global.config.network.name -}}
+{{- $env := .Values.config.network.environment | default .Values.global.config.network.environment -}}
+{{- $dashboard := printf "%s?var-namespace=%s" .Values.metrics.dashboard_url $ns -}}
+{{- $cluster := .Values.cluster_name -}}
+
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    {{- include "data-aggregator.labels" . | nindent 4 }}
+  name: {{ include "data-aggregator.fullname" . }}-rules
+spec:
+  groups:
+  - name: DataAggregator
+    rules:
+    - alert: HighIngestionRate
+      expr: sum(rate(ng_ledger_commit_committed_transactions_count{namespace="{{ $ns }}", container="data-aggregator"}[5m])) > 100
+      labels:
+        severity: "warning"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "There is an increase in ingestion rate"
+        description: "The ingestion rate is more than 100 tps in the last 5 minutes"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighResubmissionQueueSize
+      expr: ng_db_mempool_transactions_needing_resubmission_total{namespace="{{ $ns }}", container="data-aggregator"} > 100
+      labels:
+        severity: "warning"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "High number of transactions that need resubmission"
+        description: "The number of transactions which have dropped out of mempools and need resubmitting is over 100"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: MoreThanOnePrimary
+      expr: sum(ng_aggregator_is_primary_status{namespace="{{ $ns }}"}) != 1
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "Many write primaries detected"
+        description: "There are more than one primary data-aggregator instances"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: ManyUnhealthyInstances
+      expr: >
+        sum(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="aggregator_health_check", container="data-aggregator"}) /
+        count(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="aggregator_health_check", container="data-aggregator"}) < 0.5
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "Many unhealthy instances detected"
+        description: "More than half of the data-aggregator instances are unhealthy"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: DatabaseConnectionLost
+      expr: >
+        sum(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="database_connection_check", container="data-aggregator"}) /
+        count(aspnetcore_healthcheck_status{namespace="{{ $ns }}", name="database_connection_check", container="data-aggregator"}) < 0.5
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "Database connection lost"
+        description: "More than half of the data-aggregator instances cannot connect to the database"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: ExtensionNotConsistent
+      expr: max(min_over_time(ng_ledger_sync_quorum_extension_consistent_status{container="data-aggregator",namespace="{{ $ns }}"}[1m])) == 0
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 1m
+      annotations:
+        summary: "Extension is not consistent"
+        description: "Extension is not consistent with itself or DB ledger"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: InconsistentNode
+      expr: min(min_over_time(ng_node_ledger_tip_is_consistent_with_quorum_status{container="data-aggregator",namespace="{{ $ns }}"}[1m])) by (node) == 0
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 1m
+      annotations:
+        summary: "Detected an inconsistent node"
+        description: "The node is inconsistent against DB ledger or quorum"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighErrorRate
+      expr: |
+        (
+         sum(increase(ng_workers_global_error_count{namespace="{{ $ns }}", container="data-aggregator"}[1m])) +
+         sum(increase(ng_workers_node_error_count{namespace="{{ $ns }}", container="data-aggregator"}[1m]))
+        ) >= 10
+      labels:
+        severity: "warning"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 3m
+      annotations:
+        summary: "High error rate"
+        description: "High error rate on the data aggregator workers (over 10 errors increase during the last minute)"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighResubmissionErrors
+      expr: sum(rate(ng_construction_transaction_resubmission_error_count{container="data-aggregator", namespace="{{ $ns }}"}[5m])) > 0.5
+      labels:
+        severity: "warning"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "High re-submission error rate"
+        description: "The error rate of re-submitted transactions is over 20"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighResubmissionErrors
+      expr: sum(rate(ng_construction_transaction_resubmission_error_count{container="data-aggregator", namespace="{{ $ns }}"}[5m])) > 2
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "High re-submission error rate"
+        description: "The error rate of re-submitted transactions is over 20"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+  - name: Mempool
+    rules:
+    - alert: FailedTimeoutTransactions
+      expr: sum(rate(ng_db_mempool_transactions_marked_as_failed_for_timeout_count{namespace="{{ $ns }}", container="data-aggregator"}[5m])) > 0.5
+      labels:
+        severity: "warning"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "Lots of failed transactions due to timeouts"
+        description: "The rate of failed transactions due to timeouts is over 20"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: FailedTimeoutTransactions
+      expr: sum(rate(ng_db_mempool_transactions_marked_as_failed_for_timeout_count{namespace="{{ $ns }}", container="data-aggregator"}[5m])) > 2
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "Lots of failed transactions due to timeouts"
+        description: "The rate of failed transactions due to timeouts is over 20"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighMempoolSize
+      expr: avg(ng_node_mempool_size_total{namespace="{{ $ns }}", container="data-aggregator"}) by (node) > 200
+      labels:
+        severity: "warning"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "High average node mempool size"
+        description: "The average mempool size for the nodes is over 200"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighProcessingLag
+      expr: max(ng_ledger_commit_last_commit_timestamp_seconds{namespace="{{ $ns }}", container="data-aggregator"}) - max(ng_ledger_commit_tip_round_unix_timestamp_seconds{namespace="{{ $ns }}", container="data-aggregator"}) > 20
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "High delay detected between nodes and the network gateway"
+        description: "The lag between nodes and the network gateway is over 10 seconds"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: HighTimeSinceLastLedgerCommit
+      expr: time() - ng_ledger_commit_last_commit_timestamp_seconds{namespace="{{ $ns }}", container="data-aggregator"} > {{ .Values.alert_thresholds.HighTimeSinceLastLedgerCommit }}
+      labels:
+        severity: "critical"
+        network: {{ $network }}
+        env: {{ $env }}
+        cluster: {{ $cluster }}
+        tier: application
+        application: network-gateway
+        namespace: {{ $ns }}
+      for: 5m
+      annotations:
+        summary: "A lot of time has passed since the last ledger commit"
+        description: "More than 30 seconds since last known commit"
+        dashboard: {{ $dashboard }}
+        runbook_url: "https://runbooks.extratools.works"
+
+{{- end -}}
