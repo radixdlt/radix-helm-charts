@@ -4,7 +4,7 @@ The repository contains the collection of Helm charts created by the RDX Works p
 
 ## License
 
-The Radix Helm Charts code is released under Apache [license](LICENSE). The Radix Software [EULA](http://www.radixdlt.com/terms/genericEULA) applies to the usage of the Helm Charts when they are deployed and running within a Kubernetes environment
+The Babylon Gateway code is released under the [Radix License](LICENSE). The Radix Software [EULA](http://www.radixdlt.com/terms/genericEULA) applies to the usage of the Helm Charts when they are deployed and running within a Kubernetes environment
 
 ## Using the repository
 
