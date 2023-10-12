@@ -1,12 +1,12 @@
 dependencies:
 - name: gateway-api
-  repository: file://../gateway-api
+  repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/
   version: 1.0.0
 - name: data-aggregator
-  repository: file://../data-aggregator
+  repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/
   version: 1.0.0
 - name: postgresql
   repository: https://charts.bitnami.com/bitnami
   version: 13.0.0
-digest: sha256:395275e60acd9aed46ef786800d8e8f0ef320c4051d2e3859914831bfdaa4ec9
-generated: "2023-09-29T15:01:47.108359+02:00"
+digest: sha256:e81316ca7db80b07360d4a80a89fe8f2980866e0e4c633a8be88bbd7878c5e6a
+generated: "2023-10-12T12:40:13.027348+02:00"
