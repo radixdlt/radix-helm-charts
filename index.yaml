@@ -3,22 +3,22 @@ entries:
   babylon-gateway:
   - apiVersion: v2
     appVersion: v1.0.0
-    created: "2023-10-03T21:12:42.429244+02:00"
+    created: "2023-10-12T12:21:34.612605+02:00"
     dependencies:
     - condition: gateway-api.enabled
       name: gateway-api
-      repository: file://../gateway-api
+      repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/index.yaml
       version: 1.0.0
     - condition: data-aggregator.enabled
       name: data-aggregator
-      repository: file://../data-aggregator
+      repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/index.yaml
       version: 1.0.0
     - condition: postgresql.enabled
       name: postgresql
       repository: https://charts.bitnami.com/bitnami
       version: 13.0.0
     description: A Helm chart for deploying the babylon-gateway on Kubernetes
-    digest: 84d1395823ede3db5059d966a982bfe58b340dceefd24a683eb91fe003e0bebb
+    digest: 00826713aa5397d29be1f6b146bbccf264bcdb233829761aa228f2567f0847ca
     name: babylon-gateway
     type: application
     urls:
@@ -27,9 +27,9 @@ entries:
   data-aggregator:
   - apiVersion: v2
     appVersion: v1.0.0
-    created: "2023-10-03T21:12:42.429856+02:00"
+    created: "2023-10-12T12:21:34.613792+02:00"
     description: A Helm chart for Kubernetes
-    digest: fc627f1c86c1e4a1465078620d2a345fc3fbcead0a59f08911877ea30ce8c671
+    digest: fb97bc72b6570a54912570e01520325ee98c84852709f0bc71fd53f4b79773df
     name: data-aggregator
     type: application
     urls:
@@ -38,12 +38,54 @@ entries:
   gateway-api:
   - apiVersion: v2
     appVersion: v1.0.0
-    created: "2023-10-03T21:12:42.430363+02:00"
+    created: "2023-10-12T12:21:34.614311+02:00"
     description: A Helm chart for babylon-gateway-api on Kubernetes.
-    digest: f868412e265f8f32ea1bc511ff142dd4896f8f42d692223a9cf53367cdde2381
+    digest: fd36d6f96acc11bb5be19f4baa10c0eabe94b39c64df9d2fe7e37eda148b09aa
     name: gateway-api
     type: application
     urls:
     - artifacts/gateway-api-1.0.0.tgz
     version: 1.0.0
-generated: "2023-10-03T21:12:42.422831+02:00"
+  postgresql:
+  - annotations:
+      category: Database
+      images: |
+        - name: os-shell
+          image: docker.io/bitnami/os-shell:11-debian-11-r77
+        - name: postgres-exporter
+          image: docker.io/bitnami/postgres-exporter:0.14.0-debian-11-r5
+        - name: postgresql
+          image: docker.io/bitnami/postgresql:16.0.0-debian-11-r3
+      licenses: Apache-2.0
+    apiVersion: v2
+    appVersion: 16.0.0
+    created: "2023-10-12T12:20:54.59528+02:00"
+    dependencies:
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: PostgreSQL (Postgres) is an open source object-relational database
+      known for reliability and data integrity. ACID-compliant, it supports foreign
+      keys, joins, views, triggers and stored procedures.
+    digest: 893de85fe7c5e36d4d8132ed1669a739681531c8be3682158205a7ab08fadd6c
+    home: https://bitnami.com
+    icon: https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-220x234.png
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    maintainers:
+    - name: VMware, Inc.
+      url: https://github.com/bitnami/charts
+    name: postgresql
+    sources:
+    - https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+    urls:
+    - artifacts/postgresql-13.1.0.tgz
+    version: 13.1.0
+generated: "2023-10-12T12:21:34.608368+02:00"
