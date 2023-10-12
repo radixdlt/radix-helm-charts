@@ -11,11 +11,11 @@ appVersion: "v1.0.0"
 dependencies:
 - name: gateway-api
   version: "1.0.0"
-  repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/index.yaml
+  repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/
   condition: gateway-api.enabled
 - name: data-aggregator
   version: "1.0.0"
-  repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/index.yaml
+  repository: https://raw.githubusercontent.com/radixdlt/radix-helm-charts/main/
   condition: data-aggregator.enabled
 - name: postgresql
   version: "13.0.0"
