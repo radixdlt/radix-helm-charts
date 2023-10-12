@@ -3,7 +3,7 @@ entries:
   babylon-gateway:
   - apiVersion: v2
     appVersion: v1.0.0
-    created: "2023-10-12T12:41:12.721348+02:00"
+    created: "2023-10-12T12:50:48.906052+02:00"
     dependencies:
     - condition: gateway-api.enabled
       name: gateway-api
@@ -18,7 +18,7 @@ entries:
       repository: https://charts.bitnami.com/bitnami
       version: 13.0.0
     description: A Helm chart for deploying the babylon-gateway on Kubernetes
-    digest: 1a2c813e469105d2866e3a94dc23a180ecb5eaaae5be655e2b23393c594eb789
+    digest: c857c5c7cc43f30d3b6ed967900e675c3ae3f2bc4e523a8ac7e6412cd64e622e
     name: babylon-gateway
     type: application
     urls:
@@ -27,9 +27,9 @@ entries:
   data-aggregator:
   - apiVersion: v2
     appVersion: v1.0.0
-    created: "2023-10-12T12:41:12.722122+02:00"
+    created: "2023-10-12T12:50:48.906684+02:00"
     description: A Helm chart for Kubernetes
-    digest: 6b30d84f72dd731b9dd1c905d8eac600d1bff06f3156fd1cb8e6117a4dbd48d4
+    digest: b665af9dcc1acccc36c33a6bbeb89a4409394a69b6e153915af929151975416d
     name: data-aggregator
     type: application
     urls:
@@ -38,9 +38,9 @@ entries:
   gateway-api:
   - apiVersion: v2
     appVersion: v1.0.0
-    created: "2023-10-12T12:41:12.72274+02:00"
+    created: "2023-10-12T12:50:48.907186+02:00"
     description: A Helm chart for babylon-gateway-api on Kubernetes.
-    digest: 34772cc2cab95c4487929d199be08d123c0c6dc0261bc8da05713bc9eb74d46f
+    digest: 0711afab43df2be53b91b24d2eff6bf8c6cab2ae753500397bd6f4be1fb1961b
     name: gateway-api
     type: application
     urls:
@@ -88,4 +88,4 @@ entries:
     urls:
     - artifacts/postgresql-13.1.0.tgz
     version: 13.1.0
-generated: "2023-10-12T12:41:12.715754+02:00"
+generated: "2023-10-12T12:50:48.900968+02:00"
